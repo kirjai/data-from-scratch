@@ -1,3 +1,6 @@
+- stop clippy :(
+  - record the choice in storage
+
 # Welcome to Remix!
 
 - [Remix Docs](https://remix.run/docs)

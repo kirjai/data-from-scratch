@@ -1,32 +1,47 @@
+// @ts-expect-error
+import { useClippy } from "@react95/clippy";
+import { useEffect } from "react";
+import { Table } from "~/components/Table";
+
 export default function Index() {
+  const { clippy } = useClippy();
+  const isFirstColumn = true;
+
+  useEffect(() => {
+    if (clippy) {
+      console.log(clippy.animations());
+    }
+  }, [clippy]);
+
+  useEffect(() => {
+    if (clippy) {
+      clippy?.play("Greeting");
+    }
+  }, [clippy]);
+
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.4" }}>
-      <h1>Welcome to Remix</h1>
-      <ul>
-        <li>
-          <a
-            target="_blank"
-            href="https://remix.run/tutorials/blog"
-            rel="noreferrer"
-          >
-            15m Quickstart Blog Tutorial
-          </a>
-        </li>
-        <li>
-          <a
-            target="_blank"
-            href="https://remix.run/tutorials/jokes"
-            rel="noreferrer"
-          >
-            Deep Dive Jokes App Tutorial
-          </a>
-        </li>
-        <li>
-          <a target="_blank" href="https://remix.run/docs" rel="noreferrer">
-            Remix Docs
-          </a>
-        </li>
-      </ul>
-    </div>
+    <>
+      <div className="flex justify-center">
+        <div className="pt-10">
+          <h1 className="font-bold text-4xl pb-4">Data from scratch</h1>
+          <h2>Let's generate some data! ⚙️</h2>
+
+          <div className="mt-10">
+            {isFirstColumn ? (
+              <div className="mb-4">
+                <p className="text-xl font-medium mb-1">
+                  ⬇️ This is your first column ⬇️
+                </p>
+                <p className="text-sm opacity-60">
+                  Click the header to edit ✏️
+                </p>
+              </div>
+            ) : null}
+
+            <Table />
+          </div>
+        </div>
+      </div>
+    </>
   );
 }

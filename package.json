@@ -8,16 +8,24 @@
     "dev:css": "tailwindcss -w -i ./styles/app.css -o app/styles/app.css"
   },
   "dependencies": {
+    "@radix-ui/react-dialog": "^1.0.0",
+    "@radix-ui/react-tabs": "^1.0.0",
+    "@react95/clippy": "^1.0.9",
     "@remix-run/node": "^1.6.7",
     "@remix-run/react": "^1.6.7",
     "@remix-run/vercel": "^1.6.7",
     "@vercel/node": "^2.4.4",
     "autoprefixer": "^10.4.8",
+    "clippyjs": "^0.0.3",
     "concurrently": "^7.3.0",
     "daisyui": "^2.22.0",
+    "fp-ts": "^2.12.2",
+    "lodash": "^4.17.21",
+    "monocle-ts": "^2.3.13",
     "postcss": "^8.4.14",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "rooks": "^6.2.0",
     "tailwindcss": "^3.1.7"
   },
   "devDependencies": {
