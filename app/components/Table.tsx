@@ -23,14 +23,18 @@ export function Table(props: Props) {
       <table className="table w-full">
         <thead>
           <tr>
-            {headers.map((header, index) => (
-              <th key={index}>
-                <Header
-                  name={header.name}
-                  setName={(name) => setColumnName(index, name)}
-                />
-              </th>
-            ))}
+            {headers.map((header, index) => {
+              const col = columns[index];
+              return (
+                <th key={index}>
+                  <Header
+                    type={isGeneratedColumn(col) ? col.type : undefined}
+                    name={header.name}
+                    setName={(name) => setColumnName(index, name)}
+                  />
+                </th>
+              );
+            })}
           </tr>
         </thead>
         <tbody>

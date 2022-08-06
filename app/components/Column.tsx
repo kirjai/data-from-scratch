@@ -17,7 +17,6 @@ import type { ColumnType } from "~/utils/ColumnProvider";
  *
  * 4. correlated
  *
- *
  * - decimal places? or signficant, how many?
  * - for each correlated column:
  *  - gradient
@@ -32,7 +31,7 @@ type HeaderProps = {
 };
 
 export function Header(props: HeaderProps) {
-  const { name, setName } = props;
+  const { name, setName, type } = props;
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [inputValue, setInputValue] = useState(() => name);
@@ -78,7 +77,16 @@ export function Header(props: HeaderProps) {
           className="w-full text-left text-base"
           onClick={() => setIsBeingEdited(true)}
         >
-          ✏️ <span className="ml-2">{name}</span>
+          <span className="flex flex-col">
+            <span>
+              ✏️ <span className="ml-2">{name}</span>
+            </span>
+            {type ? (
+              <span className="text-xs opacity-50 font-light">
+                (type: {type})
+              </span>
+            ) : null}
+          </span>
         </button>
       )}
     </div>
