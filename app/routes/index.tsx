@@ -8,6 +8,7 @@ import { useColumns } from "~/utils/ColumnProvider";
 import { generate } from "~/utils/generators";
 import * as E from "fp-ts/Either";
 import * as O from "fp-ts/Option";
+import { CSVLink } from "react-csv";
 
 export default function Index() {
   const { clippy } = useClippy();
@@ -18,6 +19,7 @@ export default function Index() {
     addNewColumn,
     generatedColumns,
     deleteColumn,
+    csv,
   } = useColumns();
   const isFirstColumn = headers.length === 1 && generatedColumns.length === 0;
   const [samples, setSamples] = useState(100);
@@ -88,6 +90,22 @@ export default function Index() {
                   />
                 </div>
               </div>
+
+              {generatedColumns.length > 0 ? (
+                <div className="text-center flex flex-col gap-4">
+                  <p>Ready to save the generated data as a CSV?</p>
+                  <div>
+                    <CSVLink
+                      data={csv}
+                      target="_blank"
+                      className="btn btn-primary"
+                      filename="data-from-scratch.csv"
+                    >
+                      Download CSV
+                    </CSVLink>
+                  </div>
+                </div>
+              ) : null}
 
               <div className="flex flex-col gap-4">
                 {isFirstColumn ? (

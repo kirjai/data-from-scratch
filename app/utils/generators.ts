@@ -129,7 +129,8 @@ function dobFromAge(age: number): string {
   const dayLatest = new Date().getDate();
   const latestDate = new Date(yearLatest, monthLatest, dayLatest);
   const earliestDate = subDays(subYears(latestDate, 1), 1);
-  return format(earliestDate, dobFormat);
+  const random = enGBFaker.date.between(earliestDate, latestDate);
+  return format(random, dobFormat);
 }
 
 function ageFromDoB(dob: string): number {

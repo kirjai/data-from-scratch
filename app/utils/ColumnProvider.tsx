@@ -36,6 +36,7 @@ const ColumnContext = createContext<{
   addNewColumn: () => void;
   deleteColumn: (index: number) => void;
   generatedColumns: readonly GeneratedColumn[];
+  csv: (string | number)[][];
 }>(null!);
 
 export function useColumns() {
@@ -100,8 +101,8 @@ export function ColumnProvider(props: PropsWithChildren<{}>) {
 
   const headers = useMemo(() => columns, [columns]);
 
-  const rows = useMemo((): O.Option<GeneratedColumn["values"][0]>[][] => {
-    const longestColumn = generatedColumns.reduce((longest, column) => {
+  const longestColumn = useMemo(() => {
+    return generatedColumns.reduce((longest, column) => {
       if (O.isNone(longest)) return O.some(column);
 
       if (longest.value.values.length < column.values.length)
@@ -109,7 +110,9 @@ export function ColumnProvider(props: PropsWithChildren<{}>) {
 
       return longest;
     }, ROA.head(generatedColumns));
+  }, [generatedColumns]);
 
+  const rows = useMemo((): O.Option<GeneratedColumn["values"][0]>[][] => {
     if (O.isNone(longestColumn)) return [columns.map(() => O.none)];
 
     return longestColumn.value.values.map((_, index) => {
@@ -119,7 +122,7 @@ export function ColumnProvider(props: PropsWithChildren<{}>) {
           : O.none;
       });
     });
-  }, [generatedColumns, columns]);
+  }, [columns, longestColumn]);
 
   const columnsForType = useCallback(
     (type: ColumnType) => {
@@ -127,6 +130,25 @@ export function ColumnProvider(props: PropsWithChildren<{}>) {
     },
     [generatedColumns]
   );
+
+  const csv = useMemo(() => {
+    if (O.isNone(longestColumn)) return [];
+    console.log({
+      longestColumn: longestColumn.value,
+    });
+
+    const dataColumns = longestColumn.value.values.map((_, index) => {
+      return generatedColumns.map((column) => {
+        return pipe(
+          O.fromNullable(column.values[index]),
+          O.getOrElse(() => "")
+        );
+      });
+    });
+
+    dataColumns.unshift(generatedColumns.map((col) => col.name));
+    return dataColumns;
+  }, [generatedColumns, longestColumn]);
 
   return (
     <ColumnContext.Provider
@@ -140,6 +162,7 @@ export function ColumnProvider(props: PropsWithChildren<{}>) {
         addNewColumn,
         deleteColumn,
         generatedColumns,
+        csv,
       }}
     >
       {props.children}
