@@ -1,5 +1,9 @@
 import type { GeneratorData } from "~/components/GeneratorContext";
-import type { Column, ColumnType, ColumnValue } from "./ColumnProvider";
+import type {
+  ColumnType,
+  ColumnValue,
+  GeneratedColumn,
+} from "./ColumnProvider";
 import * as E from "fp-ts/Either";
 import * as O from "fp-ts/Option";
 import * as t from "io-ts";
@@ -9,13 +13,13 @@ import { differenceInYears, format, parse, subDays, subYears } from "date-fns";
 
 type Generator = (
   numberOfSamples: number,
-  columns: readonly Column[],
+  columns: readonly GeneratedColumn[],
   data: GeneratorData
 ) => E.Either<string[], ColumnValue[]>;
 
 export function generate(
   numberOfSamples: number,
-  columns: readonly Column[],
+  columns: readonly GeneratedColumn[],
   data: GeneratorData
 ): E.Either<string[], { values: ColumnValue[]; type: ColumnType }> {
   return pipe(
@@ -223,9 +227,9 @@ function correlatedGenerator<T, R>(
 
 function maybeCorrelated<R>(
   onNotCorrelated: () => R,
-  onCorrelated: (column: Column) => R
+  onCorrelated: (column: GeneratedColumn) => R
 ) {
-  return (correlatedColumn: O.Option<Column>) => {
+  return (correlatedColumn: O.Option<GeneratedColumn>) => {
     if (O.isNone(correlatedColumn)) return onNotCorrelated();
 
     return onCorrelated(correlatedColumn.value);

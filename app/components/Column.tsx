@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useOutsideClick } from "rooks";
+import type { ColumnType } from "~/utils/ColumnProvider";
 
 /**
  *
@@ -27,6 +28,7 @@ import { useOutsideClick } from "rooks";
 type HeaderProps = {
   name: string;
   setName: (name: string) => void;
+  type?: ColumnType;
 };
 
 export function Header(props: HeaderProps) {

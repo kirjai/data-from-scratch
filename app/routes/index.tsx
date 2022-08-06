@@ -12,8 +12,14 @@ import * as O from "fp-ts/Option";
 export default function Index() {
   const { clippy } = useClippy();
   const [generateDialogOpen, setGenerateDialogOpen] = useState(false);
-  const { headers, columns, addGeneratedColumn } = useColumns();
-  const isFirstColumn = headers.length === 1;
+  const {
+    headers,
+    columns,
+    addGeneratedColumn,
+    addNewColumn,
+    generatedColumns,
+  } = useColumns();
+  const isFirstColumn = headers.length === 1 && columns.length === 0;
   const [samples, setSamples] = useState(100);
   const [generatingForIndex, setGeneratingForIndex] = useState(-1);
   const [errors, setErrors] = useState<O.Option<string[]>>(O.none);
@@ -40,7 +46,7 @@ export default function Index() {
         ])
       );
 
-    const generated = generate(samples, columns, data);
+    const generated = generate(samples, generatedColumns, data);
 
     if (E.isRight(generated)) {
       addGeneratedColumn(generatingForIndex, {
@@ -101,6 +107,7 @@ export default function Index() {
                       setGeneratingForIndex(index);
                       setGenerateDialogOpen(true);
                     }}
+                    onAdd={addNewColumn}
                   />
                 </div>
               </div>

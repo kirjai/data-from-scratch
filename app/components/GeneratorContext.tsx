@@ -3,15 +3,15 @@ import type { PropsWithChildren } from "react";
 import { useCallback } from "react";
 import { createContext, useContext, useState } from "react";
 import * as O from "fp-ts/Option";
-import type { Column, ColumnType } from "~/utils/ColumnProvider";
+import type { ColumnType, GeneratedColumn } from "~/utils/ColumnProvider";
 
 type IGeneratorContext = {
   data: GeneratorData;
   setAgeRangeMin: (value: number) => void;
   setAgeRangeMax: (value: number) => void;
-  setAgeCorrelatesTo: (value: Column) => void;
-  setNameCorrelatesTo: (value: Column) => void;
-  setEmailCorrelatesTo: (value: Column) => void;
+  setAgeCorrelatesTo: (value: O.Option<GeneratedColumn>) => void;
+  setNameCorrelatesTo: (value: O.Option<GeneratedColumn>) => void;
+  setEmailCorrelatesTo: (value: O.Option<GeneratedColumn>) => void;
   setColumnType: (column: ColumnType) => void;
 };
 
@@ -20,10 +20,10 @@ export type GeneratorData = {
   ageRange: {
     min: O.Option<number>;
     max: O.Option<number>;
-    correlatesTo: O.Option<Column>;
+    correlatesTo: O.Option<GeneratedColumn>;
   };
-  nameCorrelatesTo: O.Option<Column>;
-  emailCorrelatesTo: O.Option<Column>;
+  nameCorrelatesTo: O.Option<GeneratedColumn>;
+  emailCorrelatesTo: O.Option<GeneratedColumn>;
 };
 
 type AgeRange = GeneratorData["ageRange"];
@@ -76,15 +76,15 @@ export function GeneratorProvider(props: PropsWithChildren<{}>) {
   );
   const setAgeCorrelatesTo: IGeneratorContext["setAgeCorrelatesTo"] =
     useCallback((column) => {
-      setGeneratorData(dataAgeRangeCorrelatesTo.set(O.some(column)));
+      setGeneratorData(dataAgeRangeCorrelatesTo.set(column));
     }, []);
   const setNameCorrelatesTo: IGeneratorContext["setNameCorrelatesTo"] =
     useCallback((column) => {
-      setGeneratorData(nameCorrelatesTo.set(O.some(column)));
+      setGeneratorData(nameCorrelatesTo.set(column));
     }, []);
   const setEmailCorrelatesTo: IGeneratorContext["setEmailCorrelatesTo"] =
     useCallback((column) => {
-      setGeneratorData(emailCorrelatesTo.set(O.some(column)));
+      setGeneratorData(emailCorrelatesTo.set(column));
     }, []);
 
   return (

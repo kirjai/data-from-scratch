@@ -1,4 +1,4 @@
-import type { Column, ColumnType } from "./ColumnProvider";
+import type { ColumnType, GeneratedColumn } from "./ColumnProvider";
 import { useColumns } from "./ColumnProvider";
 import * as O from "fp-ts/Option";
 import * as Tabs from "@radix-ui/react-tabs";
@@ -8,9 +8,9 @@ import { useMemo } from "react";
 import { useEffect } from "react";
 import { useState } from "react";
 import { useGeneratorContext } from "~/components/GeneratorContext";
-import * as Select from "@radix-ui/react-select";
+import { pipe } from "fp-ts/lib/function";
 
-export const groupsForColumns = (columns: readonly Column[]) => ({
+export const groupsForColumns = (columns: readonly GeneratedColumn[]) => ({
   numerical: {
     tab: () => <>Numerical</>,
     content: () => (
@@ -163,8 +163,8 @@ function AgeRange(props: AgeRangeProps) {
 type CorrelatesToProps = {
   type: ColumnType;
   label: string;
-  onSelect: (c: Column) => void;
-  selected: O.Option<Column>;
+  onSelect: (c: O.Option<GeneratedColumn>) => void;
+  selected: O.Option<GeneratedColumn>;
 };
 
 function CorrelatesTo(props: CorrelatesToProps) {
@@ -177,7 +177,8 @@ function CorrelatesTo(props: CorrelatesToProps) {
 
   return correlationOptions.length > 0 ? (
     <div>
-      <span>{label}</span>
+      <span className="text-base-content">{label}</span>
+      <br />
       <ColumnsDropdown
         columns={correlationOptions}
         onSelect={onSelect}
@@ -188,34 +189,65 @@ function CorrelatesTo(props: CorrelatesToProps) {
 }
 
 type ColumnsDropdownProps = {
-  columns: Column[];
-  onSelect: (column: Column) => void;
-  selected: O.Option<Column>;
+  columns: GeneratedColumn[];
+  onSelect: (column: O.Option<GeneratedColumn>) => void;
+  selected: O.Option<GeneratedColumn>;
 };
 
 function ColumnsDropdown(props: ColumnsDropdownProps) {
   const { columns, onSelect, selected } = props;
 
   return (
-    <Select.Root onValueChange={(value) => onSelect(columns[parseInt(value)])}>
-      <Select.Trigger>
-        {O.isSome(selected) ? selected.value.name : "Pick a column"}
-      </Select.Trigger>
-      <Select.Portal>
-        <Select.Content>
-          <Select.Viewport>
-            {columns.map((column, index) => {
-              return (
-                <Select.Item key={index} value={`${index}`}>
-                  {column.name}
-                </Select.Item>
-              );
-            })}
-          </Select.Viewport>
-        </Select.Content>
-      </Select.Portal>
-    </Select.Root>
+    <select
+      className="select select-bordered"
+      defaultValue={undefined}
+      onChange={(event) => {
+        const col = pipe(
+          O.fromNullable(event.target.value),
+          O.map(parseInt),
+          O.chain((value) => O.fromNullable(columns[value]))
+        );
+
+        console.log({
+          col,
+          event,
+        });
+        onSelect(col);
+      }}
+    >
+      <option value={undefined}>-</option>
+      {columns.map((column, index) => {
+        return (
+          <option key={index} value={`${index}`}>
+            {column.name}
+          </option>
+        );
+      })}
+    </select>
   );
+
+  // return (
+  //   <Select.Root onValueChange={(value) => onSelect(columns[parseInt(value)])}>
+  //     <div className="dropdown">
+  //       <Select.Trigger className="btn m-1">
+  //         {O.isSome(selected) ? selected.value.name : "Pick a column"}
+  //       </Select.Trigger>
+  //       <Select.Portal>
+  //         <Select.Content>
+  //           <Select.Viewport className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+  //             {columns.map((column, index) => {
+  //               return (
+  //                 <Select.Item key={index} value={`${index}`}>
+  //                   {column.name}
+  //                 </Select.Item>
+  //               );
+  //             })}
+  //           </Select.Viewport>
+  //         </Select.Content>
+  //       </Select.Portal>
+  //     </div>
+  //   </Select.Root>
+  // );
 }
 
 type RangeInputProps = {

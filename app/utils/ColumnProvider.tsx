@@ -12,22 +12,29 @@ import * as O from "fp-ts/lib/Option";
 import { pipe } from "fp-ts/lib/function";
 
 export type ColumnType = "name" | "age" | "dob" | "email" | "address";
-
 export type ColumnValue = any;
 
-export type Column = {
+export type EmptyColumn = Omit<GeneratedColumn, "type" | "values">;
+export type GeneratedColumn = {
   type: ColumnType;
   name: string;
   values: ColumnValue[];
 };
 
+type Column = EmptyColumn | GeneratedColumn;
+
+export const isGeneratedColumn = (column: Column): column is GeneratedColumn =>
+  !!(column as GeneratedColumn).type;
+
 const ColumnContext = createContext<{
   headers: readonly Omit<Column, "type">[];
-  rows: O.Option<Column["values"][0]>[][];
+  rows: O.Option<ColumnValue>[][];
   setColumnName: (index: number, name: Column["name"]) => void;
   columns: readonly Column[];
-  columnsForType: (type: ColumnType) => Column[];
-  addGeneratedColumn: (index: number, column: Column) => void;
+  columnsForType: (type: ColumnType) => GeneratedColumn[];
+  addGeneratedColumn: (index: number, column: GeneratedColumn) => void;
+  addNewColumn: () => void;
+  generatedColumns: readonly GeneratedColumn[];
 }>(null!);
 
 export function useColumns() {
@@ -48,7 +55,15 @@ function updateColumn<T>(updateFn: (t: T) => T) {
 }
 
 export function ColumnProvider(props: PropsWithChildren<{}>) {
-  const [columns, setColumns] = useState<readonly Column[]>(() => []);
+  const [columns, setColumns] = useState<readonly Column[]>(() => [
+    {
+      name: "Header",
+    },
+  ]);
+  const generatedColumns = useMemo(
+    () => columns.filter(isGeneratedColumn),
+    [columns]
+  );
 
   const setColumnName = useCallback((index: number, value: Column["name"]) => {
     setColumns(updateColumn(columnNameLens.set(value))(index));
@@ -56,47 +71,52 @@ export function ColumnProvider(props: PropsWithChildren<{}>) {
 
   const addGeneratedColumn = useCallback((index: number, column: Column) => {
     setColumns((cols) => {
-      console.log({
-        cols,
-      });
       const c = [...cols];
       c[index] = column;
       return c as readonly Column[];
     });
   }, []);
 
-  const headers = useMemo(
-    () =>
-      columns.length > 0
-        ? (columns as readonly Omit<Column, "type">[])
-        : [{ name: "Header", values: [] }],
-    [columns]
-  );
+  const addNewColumn = useCallback(() => {
+    setColumns((cols) => {
+      return [
+        ...cols,
+        {
+          name: "Header",
+          values: [],
+        },
+      ];
+    });
+  }, []);
 
-  const rows = useMemo((): O.Option<Column["values"][0]>[][] => {
-    const longestColumn = columns.reduce((longest, column) => {
+  const headers = useMemo(() => columns, [columns]);
+
+  const rows = useMemo((): O.Option<GeneratedColumn["values"][0]>[][] => {
+    const longestColumn = generatedColumns.reduce((longest, column) => {
       if (O.isNone(longest)) return O.some(column);
 
       if (longest.value.values.length < column.values.length)
         return O.some(column);
 
       return longest;
-    }, ROA.head(columns));
+    }, ROA.head(generatedColumns));
 
-    if (O.isNone(longestColumn)) return [];
+    if (O.isNone(longestColumn)) return [columns.map(() => O.none)];
 
     return longestColumn.value.values.map((_, index) => {
       return columns.map((column) => {
-        return O.fromNullable(column.values[index]);
+        return isGeneratedColumn(column)
+          ? O.fromNullable(column.values[index])
+          : O.none;
       });
     });
-  }, [columns]);
+  }, [generatedColumns, columns]);
 
   const columnsForType = useCallback(
     (type: ColumnType) => {
-      return columns.filter((col) => col.type === type);
+      return generatedColumns.filter((col) => col.type === type);
     },
-    [columns]
+    [generatedColumns]
   );
 
   return (
@@ -108,6 +128,8 @@ export function ColumnProvider(props: PropsWithChildren<{}>) {
         columns,
         columnsForType,
         addGeneratedColumn,
+        addNewColumn,
+        generatedColumns,
       }}
     >
       {props.children}
