@@ -16,7 +16,10 @@ import { faker as enGBFaker } from "@faker-js/faker/locale/en_GB";
 import { differenceInYears, format, parse, subDays, subYears } from "date-fns";
 import { NumberFromString, option } from "io-ts-types";
 import normal from "@stdlib/random/base/normal";
+import stdGamma from "@stdlib/random/base/gamma";
+import uniform from "@stdlib/random/base/uniform";
 import { formatValidationErrors } from "io-ts-reporters";
+import { NonZero } from "io-ts-numbers";
 
 type Generator = (
   numberOfSamples: number,
@@ -123,12 +126,42 @@ const addressGenerator: Generator = (samples) => {
 const correlatedGenerator: Generator = (samples, columns, data) => {
   return parsedInputsGenerator(CorrelatedCodec.decode, (inputs) => {
     const values = correlated(
-      inputs.correlatedCorrelatesTo.value.values,
-      inputs.correlatedGradient.value,
-      inputs.correlatedC.value,
-      inputs.correlatedLoc.value,
-      inputs.correlatedStandardDeviation.value
+      inputs.correlated.correlatesTo.value.values,
+      inputs.correlated.gradient.value,
+      inputs.correlated.c.value,
+      inputs.correlated.loc.value,
+      inputs.correlated.standardDeviation.value
     );
+    return values.map(rounded(inputs.rounding.type, inputs.rounding.value));
+  })(data);
+};
+
+const gammaGenerator: Generator = (samples, columns, data) => {
+  return parsedInputsGenerator(GammaCodec.decode, (inputs) => {
+    const values = generateNValues(samples, () =>
+      gamma(inputs.gamma.mean.value, inputs.gamma.standardDeviation.value)
+    );
+
+    return values.map(rounded(inputs.rounding.type, inputs.rounding.value));
+  })(data);
+};
+
+const uniformGenerator: Generator = (samples, columns, data) => {
+  return parsedInputsGenerator(UniformCodec.decode, (inputs) => {
+    const values = generateNValues(samples, () =>
+      uniform(inputs.uniform.min.value, inputs.uniform.max.value)
+    );
+
+    return values.map(rounded(inputs.rounding.type, inputs.rounding.value));
+  })(data);
+};
+
+const normalGenerator: Generator = (samples, columns, data) => {
+  return parsedInputsGenerator(NormalCodec.decode, (inputs) => {
+    const values = generateNValues(samples, () =>
+      normal(inputs.normal.mean.value, inputs.normal.standardDeviation.value)
+    );
+
     return values.map(rounded(inputs.rounding.type, inputs.rounding.value));
   })(data);
 };
@@ -140,7 +173,17 @@ const generators: { [P in ColumnType]: Generator } = {
   name: nameGenerator,
   address: addressGenerator,
   correlated: correlatedGenerator,
+  gamma: gammaGenerator,
+  uniform: uniformGenerator,
+  normal: normalGenerator,
 };
+
+function gamma(mean: number, standardDeviation: number) {
+  const shape = Math.pow(mean / standardDeviation, 2);
+  const scale = Math.pow(standardDeviation, 2) / mean;
+
+  return stdGamma(shape, scale);
+}
 
 function correlated(
   values: number[],
@@ -316,15 +359,44 @@ const RoundingCodec = t.type({
 });
 const CorrelatedCodec = t.intersection([
   t.type({
-    correlatedCorrelatesTo: someCodec(
-      t.type({
-        values: t.array(t.union([NumberFromString, t.number])),
-      })
-    ),
-    correlatedGradient: someCodec(t.number),
-    correlatedC: someCodec(t.number),
-    correlatedLoc: someCodec(t.number),
-    correlatedStandardDeviation: someCodec(t.number),
+    correlated: t.type({
+      correlatesTo: someCodec(
+        t.type({
+          values: t.array(t.union([NumberFromString, t.number])),
+        })
+      ),
+      gradient: someCodec(t.number),
+      c: someCodec(t.number),
+      loc: someCodec(t.number),
+      standardDeviation: someCodec(t.number),
+    }),
+  }),
+  RoundingCodec,
+]);
+const GammaCodec = t.intersection([
+  t.type({
+    gamma: t.type({
+      mean: someCodec(NonZero),
+      standardDeviation: someCodec(NonZero),
+    }),
+  }),
+  RoundingCodec,
+]);
+const UniformCodec = t.intersection([
+  t.type({
+    uniform: t.type({
+      min: someCodec(t.number),
+      max: someCodec(t.number),
+    }),
+  }),
+  RoundingCodec,
+]);
+const NormalCodec = t.intersection([
+  t.type({
+    normal: t.type({
+      mean: someCodec(t.number),
+      standardDeviation: someCodec(t.number),
+    }),
   }),
   RoundingCodec,
 ]);

@@ -15,19 +15,7 @@ import { pipe } from "fp-ts/lib/function";
 export const groupsForColumns = (columns: readonly GeneratedColumn[]) => ({
   numerical: {
     tab: () => <>Numerical</>,
-    content: () => (
-      <div />
-      // <SimpleTabs
-      //   labels={{
-      //     name: "Name",
-      //     age: "Age",
-      //   }}
-      //   content={{
-      //     name: () => <div>Namesies</div>,
-      //     age: () => <div>Agesies</div>,
-      //   }}
-      // />
-    ),
+    content: () => <Numerical />,
   },
   categorical: {
     tab: () => <>Categorical</>,
@@ -55,6 +43,91 @@ export const groupsForColumns = (columns: readonly GeneratedColumn[]) => ({
   },
 });
 
+function Numerical() {
+  const { setColumnType } = useGeneratorContext();
+
+  return (
+    <SimpleTabs
+      onChange={setColumnType}
+      labels={{
+        gamma: "Gamma distribution",
+        uniform: "Uniform distribution",
+        normal: "Normal distribution",
+      }}
+      content={{
+        gamma: () => <Gamma />,
+        uniform: () => <Uniform />,
+        normal: () => <Normal />,
+      }}
+    />
+  );
+}
+
+function Uniform() {
+  const { setUniformMin, setUniformMax, data } = useGeneratorContext();
+
+  return (
+    <div>
+      <NumberInput
+        defaultValue={0}
+        value={O.getOrElse(() => "" as any)(data.uniform.min)}
+        onChange={setUniformMin}
+        label="Min"
+      />
+      <NumberInput
+        defaultValue={100}
+        value={O.getOrElse(() => "" as any)(data.uniform.max)}
+        onChange={setUniformMax}
+        label="Max"
+      />
+    </div>
+  );
+}
+
+function Normal() {
+  const { setNormalMean, setNormalStandardDeviation, data } =
+    useGeneratorContext();
+
+  return (
+    <div>
+      <NumberInput
+        defaultValue={1}
+        value={O.getOrElse(() => "" as any)(data.normal.mean)}
+        onChange={setNormalMean}
+        label="Mean"
+      />
+      <NumberInput
+        defaultValue={1}
+        value={O.getOrElse(() => "" as any)(data.normal.standardDeviation)}
+        onChange={setNormalStandardDeviation}
+        label="Standard deviation"
+      />
+    </div>
+  );
+}
+
+function Gamma() {
+  const { setGammaMean, setGammaStandardDeviation, data } =
+    useGeneratorContext();
+
+  return (
+    <div>
+      <NumberInput
+        defaultValue={1}
+        value={O.getOrElse(() => "" as any)(data.gamma.mean)}
+        onChange={setGammaMean}
+        label="Mean"
+      />
+      <NumberInput
+        defaultValue={1}
+        value={O.getOrElse(() => "" as any)(data.gamma.standardDeviation)}
+        onChange={setGammaStandardDeviation}
+        label="Standard deviation"
+      />
+    </div>
+  );
+}
+
 function Correlated() {
   const {
     setCorrelatedCorrelatesTo,
@@ -76,7 +149,7 @@ function Correlated() {
     }
   };
 
-  const selected = data.correlatedCorrelatesTo;
+  const selected = data.correlated.correlatesTo;
 
   return (
     <div className="flex flex-col gap-4">
@@ -100,8 +173,8 @@ function Correlated() {
             <NumberInput
               defaultValue={1}
               value={
-                O.isSome(data.correlatedGradient)
-                  ? data.correlatedGradient.value
+                O.isSome(data.correlated.gradient)
+                  ? data.correlated.gradient.value
                   : ""
               }
               onChange={setCorrelatedGradient}
@@ -109,14 +182,14 @@ function Correlated() {
             />
             <NumberInput
               defaultValue={1}
-              value={O.isSome(data.correlatedC) ? data.correlatedC.value : ""}
+              value={O.isSome(data.correlated.c) ? data.correlated.c.value : ""}
               onChange={setCorrelatedC}
               label="c"
             />
             <NumberInput
               defaultValue={1}
               value={
-                O.isSome(data.correlatedLoc) ? data.correlatedLoc.value : ""
+                O.isSome(data.correlated.loc) ? data.correlated.loc.value : ""
               }
               onChange={setCorrelatedLoc}
               label="Mean"
@@ -124,7 +197,9 @@ function Correlated() {
             <NumberInput
               defaultValue={1}
               value={
-                O.isSome(data.correlatedLoc) ? data.correlatedLoc.value : ""
+                O.isSome(data.correlated.standardDeviation)
+                  ? data.correlated.standardDeviation.value
+                  : ""
               }
               onChange={setCorrelatedStandardDeviation}
               label="Standard deviation"

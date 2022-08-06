@@ -4838,6 +4838,11 @@ invariant@^2.2.4:
   dependencies:
     loose-envify "^1.0.0"
 
+io-ts-numbers@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/io-ts-numbers/-/io-ts-numbers-1.1.0.tgz#c32699752546a6cb889c83470065437f6bba1a81"
+  integrity sha512-BHyLDJcbBT1lbXcPhcKotkxlgB9ysFHXhIiZIxe29j63/XVMcenVmVp80+PcKTmUeyiqM17Vy7UayHJTMfVRSg==
+
 io-ts-reporters@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/io-ts-reporters/-/io-ts-reporters-2.0.1.tgz#0154545aefd115f0f175a41743ed7327d19b1c34"

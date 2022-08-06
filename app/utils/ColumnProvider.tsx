@@ -19,6 +19,9 @@ export const ColumnTypeCodec = t.union([
   t.literal("email"),
   t.literal("address"),
   t.literal("correlated"),
+  t.literal("gamma"),
+  t.literal("uniform"),
+  t.literal("normal"),
 ]);
 
 export type ColumnType = t.TypeOf<typeof ColumnTypeCodec>;

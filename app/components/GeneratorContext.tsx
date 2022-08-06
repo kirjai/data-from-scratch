@@ -24,6 +24,12 @@ type IGeneratorContext = {
   setCorrelatedC: (value: number) => void;
   setCorrelatedLoc: (value: number) => void;
   setCorrelatedStandardDeviation: (value: number) => void;
+  setGammaMean: (value: number) => void;
+  setGammaStandardDeviation: (value: number) => void;
+  setNormalMean: (value: number) => void;
+  setNormalStandardDeviation: (value: number) => void;
+  setUniformMin: (value: number) => void;
+  setUniformMax: (value: number) => void;
   setRoundingType: (value: O.Option<RoundingType>) => void;
   setRoundingValue: (value: number) => void;
   setColumnType: (column: ColumnType) => void;
@@ -38,22 +44,44 @@ export type GeneratorData = {
   };
   nameCorrelatesTo: O.Option<GeneratedColumn>;
   emailCorrelatesTo: O.Option<GeneratedColumn>;
-  correlatedCorrelatesTo: O.Option<GeneratedColumn>;
-  correlatedGradient: O.Option<number>;
-  correlatedC: O.Option<number>;
-  correlatedLoc: O.Option<number>;
-  correlatedStandardDeviation: O.Option<number>;
+  correlated: {
+    correlatesTo: O.Option<GeneratedColumn>;
+    gradient: O.Option<number>;
+    c: O.Option<number>;
+    loc: O.Option<number>;
+    standardDeviation: O.Option<number>;
+  };
+  gamma: {
+    mean: O.Option<number>;
+    standardDeviation: O.Option<number>;
+  };
   rounding: {
     type: O.Option<RoundingType>;
     value: O.Option<number>;
+  };
+  uniform: {
+    min: O.Option<number>;
+    max: O.Option<number>;
+  };
+  normal: {
+    mean: O.Option<number>;
+    standardDeviation: O.Option<number>;
   };
 };
 
 type AgeRange = GeneratorData["ageRange"];
 type Rounding = GeneratorData["rounding"];
+type Correlated = GeneratorData["correlated"];
+type Gamma = GeneratorData["gamma"];
+type Uniform = GeneratorData["uniform"];
+type Normal = GeneratorData["normal"];
 
 const fromGeneratorDataProp = Lens.fromProp<GeneratorData>();
 const range = fromGeneratorDataProp("ageRange");
+const correlated = fromGeneratorDataProp("correlated");
+const gamma = fromGeneratorDataProp("gamma");
+const normal = fromGeneratorDataProp("normal");
+const uniform = fromGeneratorDataProp("uniform");
 const ageRangeMin = Lens.fromProp<AgeRange>()("min");
 const ageRangeMax = Lens.fromProp<AgeRange>()("max");
 const ageCorrelatesTo = Lens.fromProp<AgeRange>()("correlatesTo");
@@ -63,13 +91,27 @@ const dataAgeRangeCorrelatesTo = range.compose(ageCorrelatesTo);
 const columnType = fromGeneratorDataProp("columnType");
 const nameCorrelatesTo = fromGeneratorDataProp("nameCorrelatesTo");
 const emailCorrelatesTo = fromGeneratorDataProp("emailCorrelatesTo");
-const correlatedCorrelatesTo = fromGeneratorDataProp("correlatedCorrelatesTo");
-const correlatedGradient = fromGeneratorDataProp("correlatedGradient");
-const correlatedC = fromGeneratorDataProp("correlatedC");
-const correlatedLoc = fromGeneratorDataProp("correlatedLoc");
-const correlatedStandardDeviation = fromGeneratorDataProp(
-  "correlatedStandardDeviation"
+const correlatedCorrelatesTo = correlated.compose(
+  Lens.fromProp<Correlated>()("correlatesTo")
 );
+const correlatedGradient = correlated.compose(
+  Lens.fromProp<Correlated>()("gradient")
+);
+const correlatedC = correlated.compose(Lens.fromProp<Correlated>()("c"));
+const correlatedLoc = correlated.compose(Lens.fromProp<Correlated>()("loc"));
+const correlatedStandardDeviation = correlated.compose(
+  Lens.fromProp<Correlated>()("standardDeviation")
+);
+const gammaMean = gamma.compose(Lens.fromProp<Gamma>()("mean"));
+const gammaStandardDeviation = gamma.compose(
+  Lens.fromProp<Gamma>()("standardDeviation")
+);
+const normalMean = normal.compose(Lens.fromProp<Normal>()("mean"));
+const normalStandardDeviation = normal.compose(
+  Lens.fromProp<Normal>()("standardDeviation")
+);
+const uniformMin = uniform.compose(Lens.fromProp<Uniform>()("min"));
+const uniformMax = uniform.compose(Lens.fromProp<Uniform>()("max"));
 const rounding = fromGeneratorDataProp("rounding");
 const roundingType = rounding.compose(Lens.fromProp<Rounding>()("type"));
 const roundingValue = rounding.compose(Lens.fromProp<Rounding>()("value"));
@@ -88,11 +130,25 @@ export function GeneratorProvider(props: PropsWithChildren<{}>) {
     },
     nameCorrelatesTo: O.none,
     emailCorrelatesTo: O.none,
-    correlatedCorrelatesTo: O.none,
-    correlatedGradient: O.none,
-    correlatedC: O.none,
-    correlatedLoc: O.none,
-    correlatedStandardDeviation: O.none,
+    correlated: {
+      correlatesTo: O.none,
+      gradient: O.none,
+      c: O.none,
+      loc: O.none,
+      standardDeviation: O.none,
+    },
+    gamma: {
+      mean: O.none,
+      standardDeviation: O.none,
+    },
+    uniform: {
+      min: O.none,
+      max: O.none,
+    },
+    normal: {
+      mean: O.none,
+      standardDeviation: O.none,
+    },
     rounding: {
       type: O.none,
       value: O.none,
@@ -165,6 +221,38 @@ export function GeneratorProvider(props: PropsWithChildren<{}>) {
     },
     []
   );
+  const setGammaMean: IGeneratorContext["setGammaMean"] = useCallback(
+    (value) => {
+      setGeneratorData(gammaMean.set(O.some(value)));
+    },
+    []
+  );
+  const setGammaStandardDeviation: IGeneratorContext["setGammaStandardDeviation"] =
+    useCallback((value) => {
+      setGeneratorData(gammaStandardDeviation.set(O.some(value)));
+    }, []);
+  const setNormalMean: IGeneratorContext["setNormalMean"] = useCallback(
+    (value) => {
+      setGeneratorData(normalMean.set(O.some(value)));
+    },
+    []
+  );
+  const setNormalStandardDeviation: IGeneratorContext["setNormalStandardDeviation"] =
+    useCallback((value) => {
+      setGeneratorData(normalStandardDeviation.set(O.some(value)));
+    }, []);
+  const setUniformMin: IGeneratorContext["setUniformMin"] = useCallback(
+    (value) => {
+      setGeneratorData(uniformMin.set(O.some(value)));
+    },
+    []
+  );
+  const setUniformMax: IGeneratorContext["setUniformMax"] = useCallback(
+    (value) => {
+      setGeneratorData(uniformMax.set(O.some(value)));
+    },
+    []
+  );
 
   return (
     <GeneratorContext.Provider
@@ -182,6 +270,12 @@ export function GeneratorProvider(props: PropsWithChildren<{}>) {
         setCorrelatedStandardDeviation,
         setRoundingType,
         setRoundingValue,
+        setGammaMean,
+        setNormalMean,
+        setNormalStandardDeviation,
+        setUniformMin,
+        setUniformMax,
+        setGammaStandardDeviation,
         data: generatorData,
       }}
     >

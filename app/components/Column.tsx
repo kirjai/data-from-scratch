@@ -4,8 +4,6 @@ import type { ColumnType } from "~/utils/ColumnProvider";
 
 /**
  * 2. numerical
- * 2.1 gamma distrbution
- *  - min, standard deviation
  * 2.2 uniform distribution
  *  - min, max
  * 2.3 normal distribution
