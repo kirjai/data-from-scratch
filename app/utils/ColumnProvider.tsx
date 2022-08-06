@@ -11,15 +11,23 @@ import * as ROA from "fp-ts/lib/ReadonlyArray";
 import * as O from "fp-ts/lib/Option";
 import { pipe } from "fp-ts/lib/function";
 
-type Column = {
+export type ColumnType = "name" | "age" | "dob" | "email" | "address";
+
+export type ColumnValue = any;
+
+export type Column = {
+  type: ColumnType;
   name: string;
-  values: {}[];
+  values: ColumnValue[];
 };
 
 const ColumnContext = createContext<{
-  headers: readonly Column[];
+  headers: readonly Omit<Column, "type">[];
   rows: O.Option<Column["values"][0]>[][];
   setColumnName: (index: number, name: Column["name"]) => void;
+  columns: readonly Column[];
+  columnsForType: (type: ColumnType) => Column[];
+  addGeneratedColumn: (index: number, column: Column) => void;
 }>(null!);
 
 export function useColumns() {
@@ -40,18 +48,30 @@ function updateColumn<T>(updateFn: (t: T) => T) {
 }
 
 export function ColumnProvider(props: PropsWithChildren<{}>) {
-  const [columns, setColumns] = useState<readonly Column[]>(() => [
-    {
-      name: "Header (edit me)",
-      values: [],
-    },
-  ]);
+  const [columns, setColumns] = useState<readonly Column[]>(() => []);
 
   const setColumnName = useCallback((index: number, value: Column["name"]) => {
     setColumns(updateColumn(columnNameLens.set(value))(index));
   }, []);
 
-  const headers = useMemo(() => columns, [columns]);
+  const addGeneratedColumn = useCallback((index: number, column: Column) => {
+    setColumns((cols) => {
+      console.log({
+        cols,
+      });
+      const c = [...cols];
+      c[index] = column;
+      return c as readonly Column[];
+    });
+  }, []);
+
+  const headers = useMemo(
+    () =>
+      columns.length > 0
+        ? (columns as readonly Omit<Column, "type">[])
+        : [{ name: "Header", values: [] }],
+    [columns]
+  );
 
   const rows = useMemo((): O.Option<Column["values"][0]>[][] => {
     const longestColumn = columns.reduce((longest, column) => {
@@ -63,7 +83,7 @@ export function ColumnProvider(props: PropsWithChildren<{}>) {
       return longest;
     }, ROA.head(columns));
 
-    if (O.isNone(longestColumn)) return [columns.map(() => O.none)];
+    if (O.isNone(longestColumn)) return [];
 
     return longestColumn.value.values.map((_, index) => {
       return columns.map((column) => {
@@ -72,12 +92,22 @@ export function ColumnProvider(props: PropsWithChildren<{}>) {
     });
   }, [columns]);
 
+  const columnsForType = useCallback(
+    (type: ColumnType) => {
+      return columns.filter((col) => col.type === type);
+    },
+    [columns]
+  );
+
   return (
     <ColumnContext.Provider
       value={{
         headers,
         rows,
         setColumnName,
+        columns,
+        columnsForType,
+        addGeneratedColumn,
       }}
     >
       {props.children}

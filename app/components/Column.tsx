@@ -2,14 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { useOutsideClick } from "rooks";
 
 /**
- * number of samples?
- *
- * 1. Commonly used columns
- * 1.1 name (first + last)
- * 1.2 age
- * 1.3 dob
- * 1.4 email (first.last@emaildomain)
- * 1.5 address (gb addresses)
  *
  * 2. numerical
  * 2.1 gamma distrbution
@@ -21,6 +13,8 @@ import { useOutsideClick } from "rooks";
  * 3.1 how many categories?
  * 3.1.1 name
  * 3.1.2 probability
+ *
+ * 4. correlated
  *
  *
  * - decimal places? or signficant, how many?
@@ -68,7 +62,7 @@ export function Header(props: HeaderProps) {
           <input
             value={inputValue}
             onChange={(event) => setInputValue(event.target.value)}
-            className="input w-full"
+            className="input w-full invalid:input-bordered invalid:input-error"
             ref={inputRef}
             required
           />

@@ -1,5 +1,6 @@
 - stop clippy :(
   - record the choice in storage
+- generate in a worker?
 
 # Welcome to Remix!
 
