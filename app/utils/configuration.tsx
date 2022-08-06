@@ -5,6 +5,7 @@ import * as O from "fp-ts/Option";
 import * as Tabs from "@radix-ui/react-tabs";
 import classnames from "classnames";
 import type { ReactNode } from "react";
+import { useCallback } from "react";
 import { useMemo } from "react";
 import { useEffect } from "react";
 import { useState } from "react";
@@ -19,19 +20,7 @@ export const groupsForColumns = (columns: readonly GeneratedColumn[]) => ({
   },
   categorical: {
     tab: () => <>Categorical</>,
-    content: () => (
-      <div />
-      // <SimpleTabs
-      //   labels={{
-      //     name: "Name",
-      //     age: "Age",
-      //   }}
-      //   content={{
-      //     name: () => <div>Namesies</div>,
-      //     age: () => <div>Agesies</div>,
-      //   }}
-      // />
-    ),
+    content: () => <Categorical />,
   },
   frequentlyUsed: {
     tab: () => <>Frequently used</>,
@@ -42,6 +31,79 @@ export const groupsForColumns = (columns: readonly GeneratedColumn[]) => ({
     content: () => <Correlated />,
   },
 });
+
+function Categorical() {
+  const {
+    setColumnType,
+    data,
+    setCategoryName,
+    setCategoryProbability,
+    addCategory,
+    removeCategory,
+  } = useGeneratorContext();
+
+  useEffect(() => {
+    setColumnType("categorical");
+  }, [setColumnType]);
+
+  const setProbability = useCallback(
+    (index: number) => (value: number) => {
+      setCategoryProbability(index, value as any);
+    },
+    [setCategoryProbability]
+  );
+
+  return (
+    <div>
+      {data.categories.map((category, index) => {
+        return (
+          <div key={category.id}>
+            <div className="flex items-center gap-6">
+              <div className="flex flex-col gap-1">
+                <div className="form-control">
+                  <label>
+                    <span className="label-text">Category</span>
+                  </label>
+                  <input
+                    type="text"
+                    className="input input-bordered"
+                    value={category.name}
+                    onChange={(event) =>
+                      setCategoryName(index, event.target.value)
+                    }
+                  />
+                </div>
+                <NumberInput
+                  label="Probability"
+                  min={0}
+                  max={1}
+                  value={category.probability}
+                  onChange={setProbability(index)}
+                />
+              </div>
+              {data.categories.length > 1 ? (
+                <button
+                  className="btn btn-xs btn-error btn-outline"
+                  onClick={() => removeCategory(index)}
+                >
+                  Remove category
+                </button>
+              ) : null}
+            </div>
+
+            <div className="divider"></div>
+          </div>
+        );
+      })}
+      <button
+        className="btn btn-outline btn-primary mt-4 btn-sm"
+        onClick={addCategory}
+      >
+        Add category
+      </button>
+    </div>
+  );
+}
 
 function Numerical() {
   const { setColumnType } = useGeneratorContext();
@@ -535,7 +597,8 @@ function NumberInput(props: NumberInputProps) {
     if (O.isSome(option)) {
       onChange(option.value);
     }
-  }, [defaultValue, onChange]);
+    // onChange omitted for a reason. infinite loop otherwise
+  }, [defaultValue]);
 
   return (
     <div className="form-control">
@@ -543,6 +606,7 @@ function NumberInput(props: NumberInputProps) {
         <span className="label-text-alt">{label}</span>
       </label>
       <input
+        step="any"
         type="number"
         className="input input-bordered invalid:input-bordered invalid:input-error"
         value={value}

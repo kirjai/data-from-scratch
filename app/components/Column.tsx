@@ -3,13 +3,6 @@ import { useOutsideClick } from "rooks";
 import type { ColumnType } from "~/utils/ColumnProvider";
 
 /**
- * 2. numerical
- * 2.2 uniform distribution
- *  - min, max
- * 2.3 normal distribution
- *  - mean, standard deviation
- *
- *
  * 3. categorical
  * 3.1 how many categories?
  * 3.1.1 name

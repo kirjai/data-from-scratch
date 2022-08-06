@@ -22,6 +22,7 @@ export const ColumnTypeCodec = t.union([
   t.literal("gamma"),
   t.literal("uniform"),
   t.literal("normal"),
+  t.literal("categorical"),
 ]);
 
 export type ColumnType = t.TypeOf<typeof ColumnTypeCodec>;

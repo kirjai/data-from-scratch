@@ -1,7 +1,9 @@
 import type {
+  Category,
   GeneratorData,
   RoundingType,
 } from "~/components/GeneratorContext";
+import { CategoryCodec } from "~/components/GeneratorContext";
 import { RoundingTypeCodec } from "~/components/GeneratorContext";
 import type {
   ColumnType,
@@ -20,6 +22,7 @@ import stdGamma from "@stdlib/random/base/gamma";
 import uniform from "@stdlib/random/base/uniform";
 import { formatValidationErrors } from "io-ts-reporters";
 import { NonZero } from "io-ts-numbers";
+import { sum } from "lodash/fp";
 
 type Generator = (
   numberOfSamples: number,
@@ -166,6 +169,20 @@ const normalGenerator: Generator = (samples, columns, data) => {
   })(data);
 };
 
+const categoricalGenerator: Generator = (samples, columns, data) => {
+  return pipe(
+    CategoricalCodec.decode(data),
+    E.mapLeft(validationErrorsToStrings),
+    E.chain(
+      E.fromPredicate(
+        (d) => sum(d.categories.map((cat) => cat.probability)) === 1,
+        () => ["Probabilities dont add up to 1"]
+      )
+    ),
+    E.map((v) => categorical(v.categories, samples))
+  );
+};
+
 const generators: { [P in ColumnType]: Generator } = {
   age: ageGenerator,
   email: emailGenerator,
@@ -176,7 +193,33 @@ const generators: { [P in ColumnType]: Generator } = {
   gamma: gammaGenerator,
   uniform: uniformGenerator,
   normal: normalGenerator,
+  categorical: categoricalGenerator,
 };
+
+function categorical(categories: Category[], samples: number) {
+  const weights = categories.map((cat) => cat.probability);
+  const values = categories.map((cat) => cat.name);
+
+  const distribution: number[] = [];
+  const sum = weights.reduce((a, b) => (a + b) as any);
+  const quant = samples / sum;
+  for (let i = 0; i < values.length; ++i) {
+    const limit = quant * weights[i];
+    for (let j = 0; j < limit; ++j) {
+      distribution.push(i);
+    }
+  }
+
+  const randomIndex = (distribution: number[]) => {
+    const index = Math.floor(distribution.length * Math.random()); // random index
+    return distribution[index];
+  };
+
+  return Array(samples)
+    .fill(null)
+    .map((_) => randomIndex(distribution))
+    .map((i) => values[i]);
+}
 
 function gamma(mean: number, standardDeviation: number) {
   const shape = Math.pow(mean / standardDeviation, 2);
@@ -400,6 +443,9 @@ const NormalCodec = t.intersection([
   }),
   RoundingCodec,
 ]);
+const CategoricalCodec = t.type({
+  categories: t.array(CategoryCodec),
+});
 
 function someCodec<C extends t.Mixed>(codec: C) {
   return t.strict(

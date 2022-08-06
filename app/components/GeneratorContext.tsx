@@ -5,12 +5,22 @@ import { createContext, useContext, useState } from "react";
 import * as O from "fp-ts/Option";
 import * as t from "io-ts";
 import type { ColumnType, GeneratedColumn } from "~/utils/ColumnProvider";
+import { Positive } from "io-ts-numbers";
+import { sum, uniqueId } from "lodash/fp";
 
 export type RoundingType = t.TypeOf<typeof RoundingTypeCodec>;
 export const RoundingTypeCodec = t.union([
   t.literal("significant"),
   t.literal("decimal"),
 ]);
+
+export const CategoryCodec = t.type({
+  id: t.string,
+  name: t.string,
+  probability: Positive,
+});
+
+export type Category = t.TypeOf<typeof CategoryCodec>;
 
 type IGeneratorContext = {
   data: GeneratorData;
@@ -33,6 +43,13 @@ type IGeneratorContext = {
   setRoundingType: (value: O.Option<RoundingType>) => void;
   setRoundingValue: (value: number) => void;
   setColumnType: (column: ColumnType) => void;
+  setCategoryName: (index: number, name: Category["name"]) => void;
+  setCategoryProbability: (
+    index: number,
+    probability: Category["probability"]
+  ) => void;
+  addCategory: () => void;
+  removeCategory: (index: number) => void;
 };
 
 export type GeneratorData = {
@@ -67,6 +84,7 @@ export type GeneratorData = {
     mean: O.Option<number>;
     standardDeviation: O.Option<number>;
   };
+  categories: Category[];
 };
 
 type AgeRange = GeneratorData["ageRange"];
@@ -149,6 +167,13 @@ export function GeneratorProvider(props: PropsWithChildren<{}>) {
       mean: O.none,
       standardDeviation: O.none,
     },
+    categories: [
+      {
+        id: uniqueId(""),
+        name: "",
+        probability: 0.5 as any,
+      },
+    ],
     rounding: {
       type: O.none,
       value: O.none,
@@ -253,6 +278,79 @@ export function GeneratorProvider(props: PropsWithChildren<{}>) {
     },
     []
   );
+  const addCategory: IGeneratorContext["addCategory"] = useCallback(() => {
+    setGeneratorData((d) => {
+      const s = sum(d.categories.map((cat) => cat.probability));
+
+      const p = 1 - s;
+
+      console.log({
+        p,
+        p2: p > 0 ? p : (0.1 as any),
+      });
+
+      return {
+        ...d,
+        categories: [
+          ...d.categories,
+          {
+            id: uniqueId(""),
+            name: "",
+            probability: p > 0 ? p : (0.1 as any),
+          },
+        ],
+      };
+    });
+  }, []);
+  const removeCategory: IGeneratorContext["removeCategory"] = useCallback(
+    (index) => {
+      setGeneratorData((d) => {
+        const c = [...d.categories];
+        delete c[index];
+
+        return {
+          ...d,
+          categories: c.filter(Boolean),
+        };
+      });
+    },
+    []
+  );
+
+  const setCategoryName: IGeneratorContext["setCategoryName"] = useCallback(
+    (index, name) => {
+      setGeneratorData((d) => {
+        const c = [...d.categories];
+        if (!c[index]) return d;
+
+        c[index] = {
+          ...c[index],
+          name,
+        };
+        return {
+          ...d,
+          categories: c,
+        };
+      });
+    },
+    []
+  );
+  const setCategoryProbability: IGeneratorContext["setCategoryProbability"] =
+    useCallback((index, probability) => {
+      setGeneratorData((d) => {
+        const c = [...d.categories];
+        if (!c[index]) return d;
+
+        c[index] = {
+          ...c[index],
+          probability,
+        };
+        return {
+          ...d,
+          categories: c,
+        };
+      });
+    }, []);
 
   return (
     <GeneratorContext.Provider
@@ -276,6 +374,10 @@ export function GeneratorProvider(props: PropsWithChildren<{}>) {
         setUniformMin,
         setUniformMax,
         setGammaStandardDeviation,
+        setCategoryName,
+        setCategoryProbability,
+        addCategory,
+        removeCategory,
         data: generatorData,
       }}
     >
