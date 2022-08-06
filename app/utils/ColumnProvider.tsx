@@ -9,17 +9,38 @@ import {
 import { Lens } from "monocle-ts";
 import * as ROA from "fp-ts/lib/ReadonlyArray";
 import * as O from "fp-ts/lib/Option";
+import * as t from "io-ts";
 import { pipe } from "fp-ts/lib/function";
 
-export type ColumnType = "name" | "age" | "dob" | "email" | "address";
-export type ColumnValue = any;
+export const ColumnTypeCodec = t.union([
+  t.literal("name"),
+  t.literal("age"),
+  t.literal("dob"),
+  t.literal("email"),
+  t.literal("address"),
+  t.literal("correlated"),
+]);
+
+export type ColumnType = t.TypeOf<typeof ColumnTypeCodec>;
+
+export const numericalColumnTypes: Set<ColumnType> = new Set([
+  "age",
+  "correlated",
+]);
+
+export type ColumnValue = t.TypeOf<typeof ColumnValueCodec>;
+
+export const ColumnValueCodec = t.union([t.string, t.number]);
 
 export type EmptyColumn = Omit<GeneratedColumn, "type" | "values">;
-export type GeneratedColumn = {
-  type: ColumnType;
-  name: string;
-  values: ColumnValue[];
-};
+
+export const GeneratedColumnCodec = t.type({
+  type: ColumnTypeCodec,
+  name: t.string,
+  values: t.array(ColumnValueCodec),
+});
+
+export type GeneratedColumn = t.TypeOf<typeof GeneratedColumnCodec>;
 
 type Column = EmptyColumn | GeneratedColumn;
 
@@ -133,14 +154,12 @@ export function ColumnProvider(props: PropsWithChildren<{}>) {
 
   const csv = useMemo(() => {
     if (O.isNone(longestColumn)) return [];
-    console.log({
-      longestColumn: longestColumn.value,
-    });
 
     const dataColumns = longestColumn.value.values.map((_, index) => {
       return generatedColumns.map((column) => {
         return pipe(
           O.fromNullable(column.values[index]),
+          O.map(String),
           O.getOrElse(() => "")
         );
       });

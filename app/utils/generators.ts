@@ -1,4 +1,8 @@
-import type { GeneratorData } from "~/components/GeneratorContext";
+import type {
+  GeneratorData,
+  RoundingType,
+} from "~/components/GeneratorContext";
+import { RoundingTypeCodec } from "~/components/GeneratorContext";
 import type {
   ColumnType,
   ColumnValue,
@@ -10,6 +14,9 @@ import * as t from "io-ts";
 import { pipe } from "fp-ts/lib/function";
 import { faker as enGBFaker } from "@faker-js/faker/locale/en_GB";
 import { differenceInYears, format, parse, subDays, subYears } from "date-fns";
+import { NumberFromString, option } from "io-ts-types";
+import normal from "@stdlib/random/base/normal";
+import { formatValidationErrors } from "io-ts-reporters";
 
 type Generator = (
   numberOfSamples: number,
@@ -113,13 +120,60 @@ const addressGenerator: Generator = (samples) => {
   );
 };
 
+const correlatedGenerator: Generator = (samples, columns, data) => {
+  return parsedInputsGenerator(CorrelatedCodec.decode, (inputs) => {
+    const values = correlated(
+      inputs.correlatedCorrelatesTo.value.values,
+      inputs.correlatedGradient.value,
+      inputs.correlatedC.value,
+      inputs.correlatedLoc.value,
+      inputs.correlatedStandardDeviation.value
+    );
+    return values.map(rounded(inputs.rounding.type, inputs.rounding.value));
+  })(data);
+};
+
 const generators: { [P in ColumnType]: Generator } = {
   age: ageGenerator,
   email: emailGenerator,
   dob: dobGenerator,
   name: nameGenerator,
   address: addressGenerator,
+  correlated: correlatedGenerator,
 };
+
+function correlated(
+  values: number[],
+  gradient: number,
+  c: number,
+  mean: number,
+  standardDeviation: number
+) {
+  return values.map((val) => {
+    return val * gradient + c + normal(mean, standardDeviation);
+  });
+}
+
+function rounded(type: O.Option<RoundingType>, amount: O.Option<number>) {
+  return (value: number) => {
+    if (O.isNone(type) || O.isNone(amount)) return value;
+
+    switch (type.value) {
+      case "significant":
+        return roundSignificant(amount.value, value);
+      case "decimal":
+        return roundDecimal(amount.value, value);
+    }
+  };
+}
+
+function roundSignificant(amount: number, value: number): string {
+  return value.toPrecision(amount);
+}
+
+function roundDecimal(amount: number, value: number): string {
+  return value.toFixed(amount);
+}
 
 const dobFormat = "yyyy-MM-dd";
 
@@ -209,17 +263,25 @@ function parsedCorrelatedGenerator<P, R>(
   return (correlatedValues: unknown[]) => {
     return pipe(
       parser(correlatedValues),
-      E.map((values) => correlatedGenerator(values, generator)),
+      E.map((values) => correlatedToGenerator(values, generator)),
       E.mapLeft(validationErrorsToStrings)
     );
   };
 }
 
 function validationErrorsToStrings(errors: t.Errors) {
-  return errors.map((e) => JSON.stringify(e));
+  return formatValidationErrors(errors);
+  // return errors.map((e) => {
+  //   console.warn({
+  //     e,
+  //   });
+
+  //   return formatValidationErrors
+  //   // return JSON.stringify(e);
+  // });
 }
 
-function correlatedGenerator<T, R>(
+function correlatedToGenerator<T, R>(
   correlatedValues: T[],
   generator: (t: T) => R
 ) {
@@ -246,6 +308,26 @@ const AgeRangeCodec = t.type({
   min: someCodec(t.number),
   max: someCodec(t.number),
 });
+const RoundingCodec = t.type({
+  rounding: t.type({
+    type: option(RoundingTypeCodec),
+    value: option(t.number),
+  }),
+});
+const CorrelatedCodec = t.intersection([
+  t.type({
+    correlatedCorrelatesTo: someCodec(
+      t.type({
+        values: t.array(t.union([NumberFromString, t.number])),
+      })
+    ),
+    correlatedGradient: someCodec(t.number),
+    correlatedC: someCodec(t.number),
+    correlatedLoc: someCodec(t.number),
+    correlatedStandardDeviation: someCodec(t.number),
+  }),
+  RoundingCodec,
+]);
 
 function someCodec<C extends t.Mixed>(codec: C) {
   return t.strict(

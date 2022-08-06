@@ -1,4 +1,5 @@
 import type { ColumnType, GeneratedColumn } from "./ColumnProvider";
+import { numericalColumnTypes } from "./ColumnProvider";
 import { useColumns } from "./ColumnProvider";
 import * as O from "fp-ts/Option";
 import * as Tabs from "@radix-ui/react-tabs";
@@ -7,6 +8,7 @@ import type { ReactNode } from "react";
 import { useMemo } from "react";
 import { useEffect } from "react";
 import { useState } from "react";
+import type { RoundingType } from "~/components/GeneratorContext";
 import { useGeneratorContext } from "~/components/GeneratorContext";
 import { pipe } from "fp-ts/lib/function";
 
@@ -47,7 +49,183 @@ export const groupsForColumns = (columns: readonly GeneratedColumn[]) => ({
     tab: () => <>Frequently used</>,
     content: () => <FrequentlyUsedContent />,
   },
+  correlated: {
+    tab: () => <>Correlated</>,
+    content: () => <Correlated />,
+  },
 });
+
+function Correlated() {
+  const {
+    setCorrelatedCorrelatesTo,
+    data,
+    setColumnType,
+    setCorrelatedGradient,
+    setCorrelatedC,
+    setCorrelatedLoc,
+    setCorrelatedStandardDeviation,
+  } = useGeneratorContext();
+
+  const onSelect = (value: O.Option<GeneratedColumn>) => {
+    if (O.isSome(value)) {
+      console.log("setting", {
+        v: value.value,
+      });
+      setCorrelatedCorrelatesTo(value.value);
+      setColumnType("correlated");
+    }
+  };
+
+  const selected = data.correlatedCorrelatesTo;
+
+  return (
+    <div className="flex flex-col gap-4">
+      <CorrelatesTo
+        types={[...numericalColumnTypes]}
+        label="Which numerical column does it correlate to?"
+        onSelect={onSelect}
+        selected={selected}
+        onNoOptions={() => (
+          <p className="text-error">
+            No columns to correlate to are available. Cannot create a correlated
+            column.
+          </p>
+        )}
+      />
+      {O.isSome(selected) ? (
+        <>
+          <div className="divider" />
+
+          <div className="flex flex-col gap-1">
+            <NumberInput
+              defaultValue={1}
+              value={
+                O.isSome(data.correlatedGradient)
+                  ? data.correlatedGradient.value
+                  : ""
+              }
+              onChange={setCorrelatedGradient}
+              label="Gradient"
+            />
+            <NumberInput
+              defaultValue={1}
+              value={O.isSome(data.correlatedC) ? data.correlatedC.value : ""}
+              onChange={setCorrelatedC}
+              label="c"
+            />
+            <NumberInput
+              defaultValue={1}
+              value={
+                O.isSome(data.correlatedLoc) ? data.correlatedLoc.value : ""
+              }
+              onChange={setCorrelatedLoc}
+              label="Mean"
+            />
+            <NumberInput
+              defaultValue={1}
+              value={
+                O.isSome(data.correlatedLoc) ? data.correlatedLoc.value : ""
+              }
+              onChange={setCorrelatedStandardDeviation}
+              label="Standard deviation"
+            />
+
+            <div className="divider" />
+
+            <Rounding />
+          </div>
+        </>
+      ) : null}
+      <div></div>
+    </div>
+  );
+}
+
+function Rounding() {
+  const { data, setRoundingType, setRoundingValue } = useGeneratorContext();
+
+  const significant: RoundingType = "significant";
+  const decimal: RoundingType = "decimal";
+
+  const select = (value: O.Option<RoundingType>) => (checked: boolean) => {
+    return checked ? setRoundingType(value) : {};
+  };
+
+  const label = pipe(
+    data.rounding.type,
+    O.map((v) => {
+      switch (v) {
+        case "significant":
+          return "How many significant digits?";
+        case "decimal":
+          return "How many decimal places?";
+        default:
+          return "How many?";
+      }
+    })
+  );
+
+  return (
+    <div>
+      <Radio
+        value="none"
+        label="None"
+        checked={O.isNone(data.rounding.type)}
+        onChange={select(O.none)}
+      />
+      <Radio
+        value={significant}
+        label="Significant digits"
+        onChange={select(O.some(significant))}
+        checked={
+          O.isSome(data.rounding.type) &&
+          data.rounding.type.value === significant
+        }
+      />
+      <Radio
+        value={decimal}
+        label="Decimal places"
+        onChange={select(O.some(decimal))}
+        checked={
+          O.isSome(data.rounding.type) && data.rounding.type.value === decimal
+        }
+      />
+      {O.isSome(data.rounding.type) ? (
+        <NumberInput
+          defaultValue={5}
+          min={0}
+          value={O.isSome(data.rounding.value) ? data.rounding.value.value : ""}
+          label={O.isSome(label) ? label.value : ""}
+          onChange={setRoundingValue}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+type RadioProps = {
+  checked: boolean;
+  value: string;
+  label: string;
+  onChange: (value: boolean) => void;
+};
+
+function Radio(props: RadioProps) {
+  return (
+    <div className="form-control">
+      <label className="label cursor-pointer">
+        <span className="label-text">{props.label}</span>
+        <input
+          className="radio radio-primary"
+          type="radio"
+          value={props.value}
+          checked={props.checked}
+          onChange={(event) => props.onChange(event.target.checked)}
+        />
+      </label>
+    </div>
+  );
+}
 
 function FrequentlyUsedContent() {
   const { setColumnType } = useGeneratorContext();
@@ -93,7 +271,7 @@ function Name() {
   return (
     <>
       <CorrelatesTo
-        type="email"
+        types={["email"]}
         label="Does name correlate to an existing email column?"
         onSelect={setNameCorrelatesTo}
         selected={data.nameCorrelatesTo}
@@ -108,7 +286,7 @@ function Email() {
   return (
     <>
       <CorrelatesTo
-        type="name"
+        types={["name"]}
         label="Does email correlate to an existing name column?"
         onSelect={setEmailCorrelatesTo}
         selected={data.emailCorrelatesTo}
@@ -149,7 +327,7 @@ function AgeRange(props: AgeRangeProps) {
     <>
       <CorrelatesTo
         label={`Does ${label} correlate to an existing column?`}
-        type={correlatesToType}
+        types={[correlatesToType]}
         onSelect={setAgeCorrelatesTo}
         selected={data.ageRange.correlatesTo}
       />
@@ -161,31 +339,33 @@ function AgeRange(props: AgeRangeProps) {
 }
 
 type CorrelatesToProps = {
-  type: ColumnType;
+  types: ColumnType[];
   label: string;
   onSelect: (c: O.Option<GeneratedColumn>) => void;
   selected: O.Option<GeneratedColumn>;
+  onNoOptions?: () => JSX.Element;
 };
 
 function CorrelatesTo(props: CorrelatesToProps) {
-  const { type, label, onSelect, selected } = props;
+  const { types, label, onSelect, selected, onNoOptions = () => null } = props;
   const { columnsForType } = useColumns();
   const correlationOptions = useMemo(
-    () => columnsForType(type),
-    [type, columnsForType]
+    () => types.map((type) => columnsForType(type)).flat(),
+    [types, columnsForType]
   );
 
   return correlationOptions.length > 0 ? (
-    <div>
+    <div className="flex flex-col gap-2">
       <span className="text-base-content">{label}</span>
-      <br />
       <ColumnsDropdown
         columns={correlationOptions}
         onSelect={onSelect}
         selected={selected}
       />
     </div>
-  ) : null;
+  ) : (
+    onNoOptions()
+  );
 }
 
 type ColumnsDropdownProps = {
@@ -208,10 +388,6 @@ function ColumnsDropdown(props: ColumnsDropdownProps) {
           O.chain((value) => O.fromNullable(columns[value]))
         );
 
-        console.log({
-          col,
-          event,
-        });
         onSelect(col);
       }}
     >
@@ -263,6 +439,42 @@ function RangeInputs(props: RangeInputProps) {
           onChange={(event) => onMax(event.target.valueAsNumber)}
         />
       </div>
+    </div>
+  );
+}
+
+type NumberInputProps = {
+  defaultValue?: number;
+  value: number | "";
+  label?: string;
+  onChange: (n: number) => void;
+  min?: number;
+  max?: number;
+};
+
+function NumberInput(props: NumberInputProps) {
+  const { value, onChange, label, defaultValue, min, max } = props;
+
+  useEffect(() => {
+    const option = O.fromNullable(defaultValue);
+    if (O.isSome(option)) {
+      onChange(option.value);
+    }
+  }, [defaultValue, onChange]);
+
+  return (
+    <div className="form-control">
+      <label htmlFor="max" className="label">
+        <span className="label-text-alt">{label}</span>
+      </label>
+      <input
+        type="number"
+        className="input input-bordered invalid:input-bordered invalid:input-error"
+        value={value}
+        onChange={(event) => onChange(event.target.valueAsNumber)}
+        min={min}
+        max={max}
+      />
     </div>
   );
 }

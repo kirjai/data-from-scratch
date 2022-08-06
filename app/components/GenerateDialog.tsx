@@ -66,43 +66,32 @@ function GroupTabs() {
       }}
     >
       <Tabs.List className="tabs">
-        <Tabs.Trigger
-          value={"numerical"}
-          className={classnames(
-            "tab tab-lifted tab-lg",
-            activeDataTypeTab === "numerical" ? "tab-active" : ""
-          )}
-        >
-          {groups.numerical.tab()}
-        </Tabs.Trigger>
-        <Tabs.Trigger
-          value={"categorical"}
-          className={classnames(
-            "tab tab-lifted tab-lg",
-            activeDataTypeTab === "categorical" ? "tab-active" : ""
-          )}
-        >
-          {groups.categorical.tab()}
-        </Tabs.Trigger>
-        <Tabs.Trigger
-          value={"frequentlyUsed"}
-          className={classnames(
-            "tab tab-lifted tab-lg",
-            activeDataTypeTab === "frequentlyUsed" ? "tab-active" : ""
-          )}
-        >
-          {groups.frequentlyUsed.tab()}
-        </Tabs.Trigger>
+        {Object.keys(groups)
+          .map((v) => v as keyof typeof groups)
+          .map((id) => {
+            return (
+              <Tabs.Trigger
+                key={id}
+                value={id}
+                className={classnames(
+                  "tab tab-lifted",
+                  activeDataTypeTab === id ? "tab-active" : ""
+                )}
+              >
+                {groups[id].tab()}
+              </Tabs.Trigger>
+            );
+          })}
+        {Object.keys(groups)
+          .map((v) => v as keyof typeof groups)
+          .map((id) => {
+            return (
+              <Tabs.Content key={id} value={id}>
+                <div className="pt-4">{groups[id].content()}</div>
+              </Tabs.Content>
+            );
+          })}
       </Tabs.List>
-      <Tabs.Content value="frequentlyUsed">
-        <div className="pt-4">{groups.frequentlyUsed.content()}</div>
-      </Tabs.Content>
-      <Tabs.Content value="categorical">
-        <div className="pt-4">{groups.categorical.content()}</div>
-      </Tabs.Content>
-      <Tabs.Content value="numerical">
-        <div className="pt-4">{groups.numerical.content()}</div>
-      </Tabs.Content>
     </Tabs.Root>
   );
 }

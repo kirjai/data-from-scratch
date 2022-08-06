@@ -3,25 +3,19 @@ import { useOutsideClick } from "rooks";
 import type { ColumnType } from "~/utils/ColumnProvider";
 
 /**
- *
  * 2. numerical
  * 2.1 gamma distrbution
+ *  - min, standard deviation
  * 2.2 uniform distribution
+ *  - min, max
  * 2.3 normal distribution
- * 2.4 random distribution
+ *  - mean, standard deviation
+ *
  *
  * 3. categorical
  * 3.1 how many categories?
  * 3.1.1 name
  * 3.1.2 probability
- *
- * 4. correlated
- *
- * - decimal places? or signficant, how many?
- * - for each correlated column:
- *  - gradient
- *  - c
- *  - loc
  */
 
 type HeaderProps = {

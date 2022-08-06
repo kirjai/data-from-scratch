@@ -132,6 +132,7 @@ export default function Index() {
               </div>
             </div>
             <GenerateDialog
+              key={String(generateDialogOpen)}
               open={generateDialogOpen}
               onOpenChange={setGenerateDialogOpen}
               onGenerate={onGenerate}

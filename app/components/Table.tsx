@@ -14,10 +14,6 @@ export function Table(props: Props) {
   const { onGenerate, onAdd, onDelete } = props;
   const { headers, rows, setColumnName, columns } = useColumns();
 
-  console.log({
-    rows,
-  });
-
   return (
     <div className="flex">
       <table className="table w-full">
@@ -82,11 +78,17 @@ export function Table(props: Props) {
               ))}
               {rows.length - slice > 0 ? (
                 <tr>
-                  <td>
-                    <span className="opacity-40">
-                      ... ({rows.length - slice} more)
-                    </span>
-                  </td>
+                  {columns.map((column, index) => {
+                    if (!isGeneratedColumn(column)) return null;
+
+                    return (
+                      <td key={index}>
+                        <span className="opacity-40">
+                          ... ({rows.length - slice} more)
+                        </span>
+                      </td>
+                    );
+                  })}
                 </tr>
               ) : null}
               {columns.length > 1 ? (
