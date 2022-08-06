@@ -53,7 +53,7 @@ function FrequentlyUsedContent() {
   const { setColumnType } = useGeneratorContext();
 
   return (
-    <>
+    <div className="flex flex-col gap-2">
       <p className="text-base-content">
         Which frequently used column would you like to generate?
       </p>
@@ -83,7 +83,7 @@ function FrequentlyUsedContent() {
           ),
         }}
       />
-    </>
+    </div>
   );
 }
 
@@ -225,29 +225,6 @@ function ColumnsDropdown(props: ColumnsDropdownProps) {
       })}
     </select>
   );
-
-  // return (
-  //   <Select.Root onValueChange={(value) => onSelect(columns[parseInt(value)])}>
-  //     <div className="dropdown">
-  //       <Select.Trigger className="btn m-1">
-  //         {O.isSome(selected) ? selected.value.name : "Pick a column"}
-  //       </Select.Trigger>
-  //       <Select.Portal>
-  //         <Select.Content>
-  //           <Select.Viewport className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
-  //             {columns.map((column, index) => {
-  //               return (
-  //                 <Select.Item key={index} value={`${index}`}>
-  //                   {column.name}
-  //                 </Select.Item>
-  //               );
-  //             })}
-  //           </Select.Viewport>
-  //         </Select.Content>
-  //       </Select.Portal>
-  //     </div>
-  //   </Select.Root>
-  // );
 }
 
 type RangeInputProps = {
@@ -336,77 +313,9 @@ function SimpleTabs<T extends object>(props: SimpleTabsProps<T>) {
 
       {content.map(([id, _content]) => (
         <Tabs.Content key={id} value={id}>
-          {_content()}
+          <div className="pt-2">{_content()}</div>
         </Tabs.Content>
       ))}
     </Tabs.Root>
   );
 }
-
-/**
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
-
-
-
-
- */
-
-const generatorGroups2 = {
-  numerical: "",
-  categorical: "",
-  frequentlyUsed: "",
-} as const;
-
-export type GeneratorGroup2 = keyof typeof generatorGroups2;
-
-export const keys = <T extends object>(obj: T): (keyof T)[] =>
-  Object.keys(obj) as (keyof T)[];
-
-export const generatorGroupsArray = keys(generatorGroups2);
-// export const generatorGroupsArray = fromArray<GeneratorGroup2>(keys(generatorGroups2))
-
-export const groupTabsLabels = {
-  frequentlyUsed: "Frequently used",
-  numerical: "Numerical",
-  categorical: "Categorical",
-} as const;
-
-export const groupDescriptions = {
-  frequentlyUsed: O.some(
-    "Which frequently used column would you like to generate?"
-  ),
-  numerical: O.none,
-  categorical: O.none,
-} as const;
-
-export const groupGenerators = {
-  frequentlyUsed: {
-    name: {
-      label: "Name",
-    },
-    age: {
-      label: "Age",
-    },
-  },
-  numerical: {},
-  categorical: {},
-} as const;
-
-export type GeneratorGroupDefinition =
-  typeof groupDescriptions[GeneratorGroup2];

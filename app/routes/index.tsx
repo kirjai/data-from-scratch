@@ -72,7 +72,7 @@ export default function Index() {
           </h1>
 
           <div className="flex justify-center mt-10">
-            <div className="flex flex-col gap-16">
+            <div className="flex flex-col gap-10">
               <div className="form-control">
                 <label className="label justify-center" htmlFor="samples">
                   <span className="label-text">

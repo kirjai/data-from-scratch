@@ -2,7 +2,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import * as Tabs from "@radix-ui/react-tabs";
 import { useState } from "react";
 import classnames from "classnames";
-import { generatorGroupsArray, groupsForColumns } from "~/utils/configuration";
+import { groupsForColumns } from "~/utils/configuration";
 import type { GeneratorData } from "./GeneratorContext";
 import { GeneratorProvider, useGeneratorContext } from "./GeneratorContext";
 import { useColumns } from "~/utils/ColumnProvider";
@@ -51,11 +51,11 @@ export function GenerateDialog(props: Props) {
 }
 
 function GroupTabs() {
+  const { generatedColumns } = useColumns();
+  const groups = groupsForColumns(generatedColumns);
   const [activeDataTypeTab, setActiveDataTypeTab] = useState(
-    generatorGroupsArray[0]
+    Object.keys(groups)[0]
   );
-  const { columns } = useColumns();
-  const groups = groupsForColumns(columns);
 
   return (
     <Tabs.Root
@@ -95,13 +95,13 @@ function GroupTabs() {
         </Tabs.Trigger>
       </Tabs.List>
       <Tabs.Content value="frequentlyUsed">
-        {groups.frequentlyUsed.content()}
+        <div className="pt-4">{groups.frequentlyUsed.content()}</div>
       </Tabs.Content>
       <Tabs.Content value="categorical">
-        {groups.categorical.content()}
+        <div className="pt-4">{groups.categorical.content()}</div>
       </Tabs.Content>
       <Tabs.Content value="numerical">
-        {groups.numerical.content()}
+        <div className="pt-4">{groups.numerical.content()}</div>
       </Tabs.Content>
     </Tabs.Root>
   );
