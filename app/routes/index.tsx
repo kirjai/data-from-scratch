@@ -14,12 +14,12 @@ export default function Index() {
   const [generateDialogOpen, setGenerateDialogOpen] = useState(false);
   const {
     headers,
-    columns,
     addGeneratedColumn,
     addNewColumn,
     generatedColumns,
+    deleteColumn,
   } = useColumns();
-  const isFirstColumn = headers.length === 1 && columns.length === 0;
+  const isFirstColumn = headers.length === 1 && generatedColumns.length === 0;
   const [samples, setSamples] = useState(100);
   const [generatingForIndex, setGeneratingForIndex] = useState(-1);
   const [errors, setErrors] = useState<O.Option<string[]>>(O.none);
@@ -96,7 +96,7 @@ export default function Index() {
                       ⬇️ This is your first column ⬇️
                     </p>
                     <p className="text-sm opacity-60">
-                      Click the header to edit ✏️
+                      Click the header to edit the name ✏️
                     </p>
                   </div>
                 ) : null}
@@ -108,6 +108,7 @@ export default function Index() {
                       setGenerateDialogOpen(true);
                     }}
                     onAdd={addNewColumn}
+                    onDelete={deleteColumn}
                   />
                 </div>
               </div>

@@ -34,6 +34,7 @@ const ColumnContext = createContext<{
   columnsForType: (type: ColumnType) => GeneratedColumn[];
   addGeneratedColumn: (index: number, column: GeneratedColumn) => void;
   addNewColumn: () => void;
+  deleteColumn: (index: number) => void;
   generatedColumns: readonly GeneratedColumn[];
 }>(null!);
 
@@ -89,6 +90,14 @@ export function ColumnProvider(props: PropsWithChildren<{}>) {
     });
   }, []);
 
+  const deleteColumn = useCallback((index: number) => {
+    setColumns((cols) => {
+      const c = [...cols];
+      c.splice(index, 1);
+      return c;
+    });
+  }, []);
+
   const headers = useMemo(() => columns, [columns]);
 
   const rows = useMemo((): O.Option<GeneratedColumn["values"][0]>[][] => {
@@ -129,6 +138,7 @@ export function ColumnProvider(props: PropsWithChildren<{}>) {
         columnsForType,
         addGeneratedColumn,
         addNewColumn,
+        deleteColumn,
         generatedColumns,
       }}
     >

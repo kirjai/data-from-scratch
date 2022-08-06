@@ -5,12 +5,13 @@ import { isGeneratedColumn, useColumns } from "~/utils/ColumnProvider";
 type Props = {
   onGenerate: (index: number) => void;
   onAdd: () => void;
+  onDelete: (index: number) => void;
 };
 
 const slice = 5;
 
 export function Table(props: Props) {
-  const { onGenerate, onAdd } = props;
+  const { onGenerate, onAdd, onDelete } = props;
   const { headers, rows, setColumnName, columns } = useColumns();
 
   console.log({
@@ -77,11 +78,27 @@ export function Table(props: Props) {
               ))}
               {rows.length - slice > 0 ? (
                 <tr>
-                  <td key="ellipsis">
+                  <td>
                     <span className="opacity-40">
                       ... ({rows.length - slice} more)
                     </span>
                   </td>
+                </tr>
+              ) : null}
+              {columns.length > 1 ? (
+                <tr>
+                  {columns.map((_, index) => {
+                    return (
+                      <td key={index}>
+                        <button
+                          className="opacity-40 btn btn-xs btn-outline btn-error"
+                          onClick={() => onDelete(index)}
+                        >
+                          Delete column
+                        </button>
+                      </td>
+                    );
+                  })}
                 </tr>
               ) : null}
             </>
@@ -90,7 +107,7 @@ export function Table(props: Props) {
       </table>
 
       <button
-        className="btn btn-circle text-xl mt-1 ml-4"
+        className="btn btn-square text-xl mt-1 ml-4"
         title="Add another column"
         onClick={onAdd}
       >
