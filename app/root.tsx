@@ -14,7 +14,7 @@ import { ColumnProvider } from "./utils/ColumnProvider";
 
 export const meta: MetaFunction = () => ({
   charset: "utf-8",
-  title: "New Remix App",
+  title: "Data from Scratch",
   viewport: "width=device-width,initial-scale=1",
 });
 

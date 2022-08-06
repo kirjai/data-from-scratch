@@ -30,6 +30,9 @@ export type ColumnType = t.TypeOf<typeof ColumnTypeCodec>;
 export const numericalColumnTypes: Set<ColumnType> = new Set([
   "age",
   "correlated",
+  "gamma",
+  "uniform",
+  "normal",
 ]);
 
 export type ColumnValue = t.TypeOf<typeof ColumnValueCodec>;

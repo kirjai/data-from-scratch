@@ -142,6 +142,8 @@ function Uniform() {
         onChange={setUniformMax}
         label="Max"
       />
+
+      <Rounding />
     </div>
   );
 }
@@ -164,6 +166,8 @@ function Normal() {
         onChange={setNormalStandardDeviation}
         label="Standard deviation"
       />
+
+      <Rounding />
     </div>
   );
 }
@@ -186,6 +190,8 @@ function Gamma() {
         onChange={setGammaStandardDeviation}
         label="Standard deviation"
       />
+
+      <Rounding />
     </div>
   );
 }
@@ -293,7 +299,7 @@ function Rounding() {
     O.map((v) => {
       switch (v) {
         case "significant":
-          return "How many significant digits?";
+          return "How many significant figures?";
         case "decimal":
           return "How many decimal places?";
         default:
@@ -312,7 +318,7 @@ function Rounding() {
       />
       <Radio
         value={significant}
-        label="Significant digits"
+        label="Significant figures"
         onChange={select(O.some(significant))}
         checked={
           O.isSome(data.rounding.type) &&
