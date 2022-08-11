@@ -22,7 +22,7 @@ export function GenerateDialog(props: Props) {
         <Dialog.Portal>
           <Dialog.Overlay className="bg-black/60 fixed top-0 left-0 right-0 bottom-0 grid place-items-center overflow-y-auto" />
           <Dialog.Content className="modal modal-open">
-            <div className="modal-box text-white">
+            <div className="modal-box">
               <div className="flex flex-col gap-4">
                 <Dialog.Title className="text-lg font-medium text-base-content">
                   What's the type of data you want to generate?
