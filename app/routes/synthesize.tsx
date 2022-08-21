@@ -1,4 +1,5 @@
 import { useFetcher } from "@remix-run/react";
+import { Header } from "~/components/Header";
 
 export default function Synthesize() {
   const fetcher = useFetcher();
@@ -11,6 +12,8 @@ export default function Synthesize() {
 
   return (
     <div className="max-w-screen-xl	px-10">
+      <Header />
+
       <div className="pt-10">
         <h1 className="font-bold text-4xl pb-4 text-center">Synthetic data</h1>
       </div>

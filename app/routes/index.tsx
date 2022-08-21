@@ -9,6 +9,7 @@ import { generate } from "~/utils/generators";
 import * as E from "fp-ts/Either";
 import * as O from "fp-ts/Option";
 import { CSVLink } from "react-csv";
+import { Header } from "~/components/Header";
 
 export default function Index() {
   const [generateDialogOpen, setGenerateDialogOpen] = useState(false);
@@ -53,6 +54,8 @@ export default function Index() {
   return (
     <ClippyProvider>
       <div className="max-w-screen-xl	px-10">
+        <Header />
+
         <div className="pt-10">
           <h1 className="font-bold text-4xl pb-4 text-center">
             Data from scratch
