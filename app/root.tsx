@@ -8,8 +8,7 @@ import {
   ScrollRestoration,
 } from "@remix-run/react";
 import styles from "./styles/app.css";
-// @ts-expect-error
-import { ClippyProvider } from "@react95/clippy";
+
 import { ColumnProvider } from "./utils/ColumnProvider";
 
 export const meta: MetaFunction = () => ({
@@ -26,11 +25,9 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <ClippyProvider>
-          <ColumnProvider>
-            <Outlet />
-          </ColumnProvider>
-        </ClippyProvider>
+        <ColumnProvider>
+          <Outlet />
+        </ColumnProvider>
         <ScrollRestoration />
         <Scripts />
         <LiveReload />

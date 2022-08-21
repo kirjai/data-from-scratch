@@ -1,5 +1,5 @@
 // @ts-expect-error
-import { useClippy } from "@react95/clippy";
+import { useClippy, ClippyProvider } from "@react95/clippy";
 import { useEffect, useState } from "react";
 import { GenerateDialog } from "~/components/GenerateDialog";
 import type { GeneratorData } from "~/components/GeneratorContext";
@@ -11,7 +11,6 @@ import * as O from "fp-ts/Option";
 import { CSVLink } from "react-csv";
 
 export default function Index() {
-  const { clippy } = useClippy();
   const [generateDialogOpen, setGenerateDialogOpen] = useState(false);
   const {
     headers,
@@ -25,18 +24,6 @@ export default function Index() {
   const [samples, setSamples] = useState(100);
   const [generatingForIndex, setGeneratingForIndex] = useState(-1);
   const [errors, setErrors] = useState<O.Option<string[]>>(O.none);
-
-  useEffect(() => {
-    if (clippy) {
-      console.log(clippy.animations());
-    }
-  }, [clippy]);
-
-  useEffect(() => {
-    if (clippy) {
-      clippy?.play("Greeting");
-    }
-  }, [clippy]);
 
   const onGenerate = (data: GeneratorData) => {
     const header = O.fromNullable(headers[generatingForIndex]);
@@ -64,7 +51,7 @@ export default function Index() {
   };
 
   return (
-    <>
+    <ClippyProvider>
       <div className="max-w-screen-xl	px-10">
         <div className="pt-10">
           <h1 className="font-bold text-4xl pb-4 text-center">
@@ -141,6 +128,25 @@ export default function Index() {
           </div>
         </div>
       </div>
-    </>
+      <Clippy />
+    </ClippyProvider>
   );
+}
+
+function Clippy() {
+  const { clippy } = useClippy();
+
+  useEffect(() => {
+    if (clippy) {
+      console.log(clippy.animations());
+    }
+  }, [clippy]);
+
+  useEffect(() => {
+    if (clippy) {
+      clippy?.play("Greeting");
+    }
+  }, [clippy]);
+
+  return null;
 }
