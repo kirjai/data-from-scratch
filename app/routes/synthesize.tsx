@@ -24,8 +24,10 @@ export default function Synthesize() {
           className="flex flex-col justify-center mt-10 gap-10"
         >
           <div className="form-control">
-            <label className="label" htmlFor="file">
-              <span>Which .CSV file do you want to synthesize data for?</span>
+            <label htmlFor="file" className="label justify-center">
+              <span className="label-text text-center">
+                Which .CSV file do you want to synthesize data for?
+              </span>
             </label>
             <input
               id="file"
@@ -38,18 +40,20 @@ export default function Synthesize() {
           </div>
 
           <div className="form-control">
-            <label htmlFor="samples" className="label">
-              Number of rows to synthesize
+            <label htmlFor="samples" className="label justify-center">
+              <span className="label-text">Number of rows to synthesize</span>
             </label>
-            <input
-              className="input input-lg invalid:input-bordered invalid:input-error"
-              type="number"
-              name="samples"
-              id="samples"
-              required
-              min={1}
-              defaultValue={100}
-            />
+            <div className="justify-center flex">
+              <input
+                className="input input-bordered input-lg invalid:input-bordered invalid:input-error w-32"
+                type="number"
+                name="samples"
+                id="samples"
+                required
+                min={1}
+                defaultValue={100}
+              />
+            </div>
           </div>
 
           <button
