@@ -88,7 +88,9 @@ const emailGenerator: Generator = (samples, columns, data) => {
   return maybeCorrelated(
     () =>
       E.right(
-        generateNValues(samples, () => email(fakeFirstName(), fakeLastName()))
+        generateNValues(samples, () =>
+          email(fakeFirstName(), O.some(fakeLastName()))
+        )
       ),
     (correlated) =>
       parsedCorrelatedGenerator(
@@ -295,8 +297,8 @@ function age(min: number, max: number) {
   });
 }
 
-function email(first: string, last: string) {
-  const e = enGBFaker.internet.email(first, last);
+function email(first: string, last: O.Option<string>) {
+  const e = enGBFaker.internet.email(first, O.toUndefined(last));
   const [, domain] = e.split("@");
   return `${first}.${last}@${domain}`;
 }
@@ -315,14 +317,18 @@ function fullName(first: string, last: string) {
 
 function emailFromName(name: string): string {
   const [first, last] = name.split(" ");
-  return email(first, last);
+  return email(first, O.fromNullable(last));
 }
 
 function nameFromEmail(email: string): string {
   const [_fullName] = email.split("@");
-  const [first, last] = _fullName.split(".");
+  const isSplittable = _fullName.includes(".");
+  if (isSplittable) {
+    const [first, last] = _fullName.split(".");
+    return fullName(first, last);
+  }
 
-  return fullName(first, last);
+  return `${fakeFirstName()} ${fakeLastName()}`;
 }
 
 function generateNValues<R>(x: number, generator: () => R) {
