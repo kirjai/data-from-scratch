@@ -104,7 +104,7 @@ function GenerateButton(props: GenerateButtonProps) {
   const { data } = useGeneratorContext();
 
   return (
-    <button className="btn btn-primary" onClick={() => props.onClick(data)}>
+    <button className="btn btn-accent" onClick={() => props.onClick(data)}>
       Generate
     </button>
   );

@@ -96,7 +96,7 @@ function Categorical() {
         );
       })}
       <button
-        className="btn btn-outline btn-primary mt-4 btn-sm"
+        className="btn btn-outline btn-accent mt-4 btn-sm"
         onClick={addCategory}
       >
         Add category

@@ -39,7 +39,7 @@ export function Table(props: Props) {
               {headers.map((header, index) => (
                 <td key={index}>
                   <button
-                    className="btn btn-primary btn-outline"
+                    className="btn btn-accent btn-outline"
                     onClick={() => onGenerate(index)}
                   >
                     Generate {header.name} data
@@ -66,7 +66,7 @@ export function Table(props: Props) {
                     return (
                       <td key={cellIndex}>
                         <button
-                          className="btn btn-primary btn-outline"
+                          className="btn btn-accent btn-outline"
                           onClick={() => onGenerate(cellIndex)}
                         >
                           Generate data
@@ -125,7 +125,7 @@ export function Table(props: Props) {
 
 // function GenerateButton() {
 //   return <button
-//   className="btn btn-primary btn-outline"
+//   className="btn btn-accent btn-outline"
 //   onClick={() => onGenerate(index)}
 // >
 //   Generate {header.name} data

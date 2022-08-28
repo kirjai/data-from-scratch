@@ -61,7 +61,7 @@ export default function Synthesize() {
 
           <button
             type="submit"
-            className={`btn btn-primary ${loading ? "loading" : ""}`}
+            className={`btn btn-accent ${loading ? "loading" : ""}`}
           >
             {loading ? "Synthesizing..." : "Synthesize! 🚀"}
           </button>
