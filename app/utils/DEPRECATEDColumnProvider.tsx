@@ -84,7 +84,10 @@ function updateColumn<T>(updateFn: (t: T) => T) {
   };
 }
 
-export function ColumnProvider(props: PropsWithChildren<{}>) {
+/**
+ * @deprecated
+ */
+export function DEPRECATEDColumnProvider(props: PropsWithChildren<{}>) {
   const [columns, setColumns] = useState<readonly Column[]>(() => [
     {
       name: "Header",

@@ -4,7 +4,10 @@ import { useCallback } from "react";
 import { createContext, useContext, useState } from "react";
 import * as O from "fp-ts/Option";
 import * as t from "io-ts";
-import type { ColumnType, GeneratedColumn } from "~/utils/ColumnProvider";
+import type {
+  ColumnType,
+  GeneratedColumn,
+} from "~/utils/DEPRECATEDColumnProvider";
 import { Positive } from "io-ts-numbers";
 import { sum, uniqueId } from "lodash/fp";
 

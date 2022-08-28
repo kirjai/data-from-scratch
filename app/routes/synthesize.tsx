@@ -1,5 +1,6 @@
 import { useFetcher } from "@remix-run/react";
 import { Header } from "~/components/Header";
+import { Upload } from "~/components/Upload";
 
 export default function Synthesize() {
   const fetcher = useFetcher();
@@ -26,21 +27,10 @@ export default function Synthesize() {
           reloadDocument
           className="flex flex-col justify-center mt-10 gap-10"
         >
-          <div className="form-control">
-            <label htmlFor="file" className="label justify-center">
-              <span className="label-text text-center">
-                Which .CSV file do you want to synthesize data for?
-              </span>
-            </label>
-            <input
-              id="file"
-              type="file"
-              accept=".csv"
-              name="file"
-              className="input"
-              required
-            />
-          </div>
+          <Upload
+            label="Which .CSV file do you want to synthesize data for?"
+            name="file"
+          />
 
           <div className="form-control">
             <label htmlFor="samples" className="label justify-center">

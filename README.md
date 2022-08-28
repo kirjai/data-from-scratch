@@ -1,3 +1,10 @@
+- from-csv - generate data
+- from-csv - header editing flaky
+- from-csv - reset file
+- fully deprecate stuff
+- drag and drop for upload
+- improve page titles
+
 # Welcome to Remix!
 
 - [Remix Docs](https://remix.run/docs)

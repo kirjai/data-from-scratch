@@ -12,8 +12,8 @@ export default function Index() {
       <div className="pt-10">
         <h1 className="font-bold text-4xl pb-4 text-center">Generate data</h1>
 
-        <div className="flex justify-center mt-10">
-          <div className="flex flex-col gap-10">
+        <div className="flex justify-center w-full mt-10">
+          <div className="flex flex-col gap-10 w-full">
             <Outlet />
           </div>
         </div>

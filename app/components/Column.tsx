@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useOutsideClick } from "rooks";
-import type { ColumnType } from "~/utils/ColumnProvider";
+import type { ColumnType } from "~/utils/DEPRECATEDColumnProvider";
 
 /**
  * 3. categorical

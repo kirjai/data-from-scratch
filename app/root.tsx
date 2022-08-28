@@ -9,7 +9,7 @@ import {
 } from "@remix-run/react";
 import styles from "./styles/app.css";
 
-import { ColumnProvider } from "./utils/ColumnProvider";
+import { DEPRECATEDColumnProvider } from "./utils/DEPRECATEDColumnProvider";
 
 export const meta: MetaFunction = () => ({
   charset: "utf-8",
@@ -25,9 +25,9 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <ColumnProvider>
+        <DEPRECATEDColumnProvider>
           <Outlet />
-        </ColumnProvider>
+        </DEPRECATEDColumnProvider>
         <ScrollRestoration />
         <Scripts />
         <LiveReload />

@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { CSVLink } from "react-csv";
 import { GenerateDialog } from "~/components/GenerateDialog";
 import type { GeneratorData } from "~/components/GeneratorContext";
-import { Table } from "~/components/Table";
-import { useColumns } from "~/utils/ColumnProvider";
+import { DEPRECATEDTable } from "~/components/Table";
+import { useColumns } from "~/utils/DEPRECATEDColumnProvider";
 import * as E from "fp-ts/Either";
 import * as O from "fp-ts/Option";
 import { generate } from "~/utils/generators";
+import { DownloadCSVButton } from "~/components/DownloadCSVButton";
 
 export default function FromScratch() {
   const {
@@ -49,7 +49,7 @@ export default function FromScratch() {
   };
 
   return (
-    <>
+    <div className="w-fit mx-auto gap-10 flex flex-col">
       <div className="form-control">
         <label className="label justify-center" htmlFor="samples">
           <span className="label-text">How many samples to generate?</span>
@@ -66,21 +66,7 @@ export default function FromScratch() {
         </div>
       </div>
 
-      {generatedColumns.length > 0 ? (
-        <div className="text-center flex flex-col gap-4">
-          <p>Ready to save the generated data as a CSV?</p>
-          <div>
-            <CSVLink
-              data={csv}
-              target="_blank"
-              className="btn btn-accent"
-              filename="data-from-scratch.csv"
-            >
-              Download CSV
-            </CSVLink>
-          </div>
-        </div>
-      ) : null}
+      {generatedColumns.length > 0 ? <DownloadCSVButton csv={csv} /> : null}
       <div className="flex flex-col gap-4">
         {isFirstColumn ? (
           <div className="text-center">
@@ -94,7 +80,7 @@ export default function FromScratch() {
         ) : null}
 
         <div className="p-10 border border-base-300 rounded-2xl">
-          <Table
+          <DEPRECATEDTable
             onGenerate={(index) => {
               setGeneratingForIndex(index);
               setGenerateDialogOpen(true);
@@ -112,6 +98,6 @@ export default function FromScratch() {
         onGenerate={onGenerate}
         errors={errors}
       />
-    </>
+    </div>
   );
 }

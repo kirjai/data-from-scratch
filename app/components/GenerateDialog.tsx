@@ -5,7 +5,7 @@ import classnames from "classnames";
 import { groupsForColumns } from "~/utils/configuration";
 import type { GeneratorData } from "./GeneratorContext";
 import { GeneratorProvider, useGeneratorContext } from "./GeneratorContext";
-import { useColumns } from "~/utils/ColumnProvider";
+import { useColumns } from "~/utils/DEPRECATEDColumnProvider";
 import * as O from "fp-ts/Option";
 
 type Props = {

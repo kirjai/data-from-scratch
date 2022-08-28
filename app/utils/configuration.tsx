@@ -1,6 +1,6 @@
-import type { ColumnType, GeneratedColumn } from "./ColumnProvider";
-import { numericalColumnTypes } from "./ColumnProvider";
-import { useColumns } from "./ColumnProvider";
+import type { ColumnType, GeneratedColumn } from "./DEPRECATEDColumnProvider";
+import { numericalColumnTypes } from "./DEPRECATEDColumnProvider";
+import { useColumns } from "./DEPRECATEDColumnProvider";
 import * as O from "fp-ts/Option";
 import * as Tabs from "@radix-ui/react-tabs";
 import classnames from "classnames";
