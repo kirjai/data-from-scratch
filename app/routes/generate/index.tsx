@@ -20,8 +20,12 @@ export default function GenerateIndex() {
           <h2 className="card-title">From an existing CSV</h2>
           <p>Do you want to add and edit columns for an existing CSV file?</p>
           <div className="card-actions justify-end">
-            <Link to="from-csv" className="btn btn-accent btn-outline">
+            <Link
+              to="from-csv"
+              className="btn btn-accent btn-outline indicator"
+            >
               Yes, let's edit my CSV file! ✍️
+              <span className="indicator-item badge badge-primary">new</span>
             </Link>
           </div>
         </div>
