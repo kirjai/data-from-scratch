@@ -612,7 +612,7 @@ function NumberInput(props: NumberInputProps) {
         <span className="label-text-alt">{label}</span>
       </label>
       <input
-        step="any"
+        step="0.1"
         type="number"
         className="input input-bordered invalid:input-bordered invalid:input-error"
         value={value}

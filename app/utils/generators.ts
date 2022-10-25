@@ -22,7 +22,7 @@ import stdGamma from "@stdlib/random/base/gamma";
 import uniform from "@stdlib/random/base/uniform";
 import { formatValidationErrors } from "io-ts-reporters";
 import { NonZero } from "io-ts-numbers";
-import { sum } from "lodash/fp";
+import { sumFloat } from "./sum-float";
 
 type Generator = (
   numberOfSamples: number,
@@ -177,7 +177,11 @@ const categoricalGenerator: Generator = (samples, columns, data) => {
     E.mapLeft(validationErrorsToStrings),
     E.chain(
       E.fromPredicate(
-        (d) => sum(d.categories.map((cat) => cat.probability)) === 1,
+        (d) => {
+          return (
+            d.categories.map((cat) => cat.probability).reduce(sumFloat, 0) === 1
+          );
+        },
         () => ["Probabilities dont add up to 1"]
       )
     ),
